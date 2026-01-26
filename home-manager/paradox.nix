@@ -24,9 +24,9 @@
   # Git configuration
   programs.git = {
     enable = true;
-    userName = "Paradox";
-    userEmail = "your-email@example.com"; # Please update this
-    extraConfig = {
+    settings = {
+      user.name = "Paradox";
+      user.email = "your-email@example.com"; # Please update this
       init.defaultBranch = "main";
       pull.rebase = true;
     };
