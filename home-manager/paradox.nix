@@ -19,7 +19,7 @@
     htop
     ripgrep
     fd
-    exa
+    eza
     bat
   ];
 
@@ -38,7 +38,7 @@
   programs.bash = {
     enable = true;
     shellAliases = {
-      ll = "exa -la";
+      ll = "eza -la";
       gs = "git status";
       gcm = "git commit -m";
     };
@@ -48,7 +48,7 @@
   programs.fish = {
     enable = true;
     shellAliases = {
-      ll = "exa -la";
+      ll = "eza -la";
       gs = "git status";
     };
     # Set fish as default shell if desired
