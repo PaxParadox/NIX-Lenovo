@@ -7,11 +7,10 @@
 
   # Packages to install for the user
   home.packages = with pkgs; [
-    neovim
     tmux
     fish
     bash
-    ghostty
+    # ghostty
     git
     # Additional tools
     htop
