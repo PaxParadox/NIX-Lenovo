@@ -18,6 +18,7 @@
     fd
     eza
     bat
+    inputs.opencode.packages.${pkgs.system}.default
   ];
 
   # Git configuration
