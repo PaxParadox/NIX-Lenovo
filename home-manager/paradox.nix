@@ -1,25 +1,34 @@
-{ config, pkgs, inputs, ... }:
-
 {
+  config,
+  pkgs,
+  inputs,
+  pkgsUnstable,
+  ...
+}: {
   home.username = "paradox";
   home.homeDirectory = "/home/paradox";
   home.stateVersion = "25.11";
 
   # Packages to install for the user
-  home.packages = with pkgs; [
-    tmux
-    fish
-    bash
-    # ghostty
-    git
-    # Additional tools
-    htop
-    ripgrep
-    fd
-    eza
-    bat
-    inputs.opencode.packages.${pkgs.system}.default
-  ];
+  home.packages = with pkgs;
+    [
+      tmux
+      fish
+      bash
+      # ghostty
+      git
+      # Additional tools
+      htop
+      ripgrep
+      fd
+      eza
+      bat
+      inputs.opencode.packages.${pkgs.system}.default
+    ]
+    ++ [
+      # Cursor AI from unstable channel (latest version)
+      pkgsUnstable.code-cursor
+    ];
 
   # Git configuration
   programs.git = {

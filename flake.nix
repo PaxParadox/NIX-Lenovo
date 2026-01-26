@@ -14,15 +14,22 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: 
-  let
+  outputs = {
+    self,
+    nixpkgs,
+    home-manager,
+    ...
+  } @ inputs: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
-  in
-  {
+    pkgsUnstable = import inputs.nixpkgs-unstable {
+      inherit system;
+      config.allowUnfree = true;
+    };
+  in {
     nixosConfigurations.lenovonix = nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = { inherit inputs; };
+      specialArgs = {inherit inputs pkgsUnstable;};
       modules = [
         ./hosts/lenovonix/configuration.nix
         home-manager.nixosModules.home-manager
@@ -30,15 +37,15 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = false;
           home-manager.users.paradox = import ./home-manager/paradox.nix;
-          home-manager.extraSpecialArgs = { inherit inputs; };
+          home-manager.extraSpecialArgs = {inherit inputs pkgsUnstable;};
         }
       ];
     };
 
     homeConfigurations.paradox = home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
-      modules = [ ./home-manager/paradox.nix ];
-      extraSpecialArgs = { inherit inputs; };
+      modules = [./home-manager/paradox.nix];
+      extraSpecialArgs = {inherit inputs pkgsUnstable;};
     };
   };
 }
