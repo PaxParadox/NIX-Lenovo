@@ -11,9 +11,7 @@
     tmux
     fish
     bash
-    # ghostty terminal - not sure if available in nixpkgs, let's search later
-    # zed-editor - already installed system-wide, maybe we want via home-manager
-    zed-editor
+    ghostty
     git
     # Additional tools
     htop
