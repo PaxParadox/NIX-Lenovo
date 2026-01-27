@@ -12,12 +12,17 @@
       url = "github:anomalyco/opencode";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+    zed = {
+      url = "github:zed-industries/zed";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
     home-manager,
+    zed,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -37,7 +42,7 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = false;
           home-manager.users.paradox = import ./home-manager/paradox.nix;
-          home-manager.extraSpecialArgs = {inherit inputs pkgsUnstable;};
+          home-manager.extraSpecialArgs = {inherit inputs pkgsUnstable zed;};
         }
       ];
     };
@@ -45,7 +50,7 @@
     homeConfigurations.paradox = home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
       modules = [./home-manager/paradox.nix];
-      extraSpecialArgs = {inherit inputs pkgsUnstable;};
+      extraSpecialArgs = {inherit inputs pkgsUnstable zed;};
     };
   };
 }

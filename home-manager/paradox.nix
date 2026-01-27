@@ -3,6 +3,7 @@
   pkgs,
   inputs,
   pkgsUnstable,
+  zed,
   ...
 }: {
   home.username = "paradox";
@@ -24,6 +25,7 @@
       eza
       bat
       inputs.opencode.packages.${pkgs.system}.default
+      zed.packages.${pkgs.system}.default
     ]
     ++ [
       # Cursor AI from unstable channel (latest version)

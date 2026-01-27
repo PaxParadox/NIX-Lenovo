@@ -105,7 +105,6 @@
     pkgs.wget
     pkgs.bitwarden-desktop
     pkgs.git
-    pkgs.zed-editor
     # Home Manager CLI tool
     pkgs.home-manager
   ];
