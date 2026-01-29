@@ -8,49 +8,58 @@
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    opencode = {
-      url = "github:anomalyco/opencode";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-    zed = {
-      url = "github:zed-industries/zed";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
+    nix-vscode-extensions = {
+          url = "github:nix-community/nix-vscode-extensions";
+          inputs.nixpkgs.follows = "nixpkgs";
+        };
   };
 
   outputs = {
     self,
     nixpkgs,
     home-manager,
-    zed,
+    nix-vscode-extensions,
     ...
   } @ inputs: let
     system = "x86_64-linux";
-    pkgs = nixpkgs.legacyPackages.${system};
+    pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
     pkgsUnstable = import inputs.nixpkgs-unstable {
       inherit system;
       config.allowUnfree = true;
+      overlays = [ nix-vscode-extensions.overlays.default ];
     };
+    vscodeOverlay = nix-vscode-extensions.overlays.default;
   in {
     nixosConfigurations.lenovonix = nixpkgs.lib.nixosSystem {
       inherit system;
       specialArgs = {inherit inputs pkgsUnstable;};
       modules = [
+        {
+          nixpkgs.config.allowUnfree = true;
+          nixpkgs.overlays = [ vscodeOverlay ];
+        }
         ./hosts/lenovonix/configuration.nix
         home-manager.nixosModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = false;
           home-manager.users.paradox = import ./home-manager/paradox.nix;
-          home-manager.extraSpecialArgs = {inherit inputs pkgsUnstable zed;};
+          home-manager.extraSpecialArgs = {inherit inputs pkgsUnstable;};
         }
       ];
     };
 
     homeConfigurations.paradox = home-manager.lib.homeManagerConfiguration {
-      inherit pkgs;
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+        overlays = [ vscodeOverlay ];
+      };
       modules = [./home-manager/paradox.nix];
-      extraSpecialArgs = {inherit inputs pkgsUnstable zed;};
+      extraSpecialArgs = {inherit inputs pkgsUnstable;};
     };
   };
 }
