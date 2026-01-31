@@ -55,7 +55,7 @@
         inherit system;
         config.allowUnfree = true;
       };
-      modules = [./home-manager/paradox.nix];
+      modules = [./home-manager/home.nix];
       extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
     };
 
