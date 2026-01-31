@@ -35,6 +35,8 @@
       pkgsMaster.opencode
       pkgsMaster.code-cursor
       pkgsMaster.warp-terminal
+      # Git GUI client
+      github-desktop
     ];
 
   # Git configuration

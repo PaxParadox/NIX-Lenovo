@@ -1,8 +1,35 @@
-# Agent Guidelines for NIX-Lenovo Configuration
+# AGENTS.md
 
-This repository contains NixOS flake configuration for the Lenovo E14 Gen 5 laptop. This document provides guidelines for agentic coding assistants working with this codebase, including build/lint/test commands and code style conventions.
+This file provides guidance to WARP (warp.dev) when working with code in this repository.
+
+## Overview
+
+NixOS flake configuration for Lenovo E14 Gen 5 laptop (hostname: `lenovonix`). Uses flakes and home-manager to manage both system-level and user-level environments with a multi-channel package sourcing strategy.
+
+## Architecture
+
+### Multi-Channel Package Strategy
+This configuration uses three nixpkgs channels simultaneously:
+- **nixpkgs (25.11)**: Stable packages for system configuration
+- **nixpkgs-unstable**: Newer packages with binary cache (gaming tools, editors)
+- **nixpkgs-master**: Latest versions, may build from source (Warp, Cursor, etc.)
+
+Access via `pkgs`, `pkgsUnstable`, and `pkgsMaster` in configuration files through `specialArgs` and `extraSpecialArgs`.
+
+### Repository Structure
+- `flake.nix`: Entry point, defines nixosConfigurations and homeConfigurations
+- `hosts/lenovonix/`: System-level configuration (boot, networking, services, system packages)
+- `home-manager/paradox.nix`: User-level configuration (user packages, dotfiles, program settings)
+- `home-manager/modules/`: Empty directory for future modularization
+
+### Configuration Pattern
+System configuration uses NixOS modules (services, programs) with home-manager integrated via `nixosModules.home-manager`. User configuration leverages home-manager's program modules (programs.vscode, programs.git, etc.) for declarative dotfile management.
 
 ## Build Commands
+
+### System Deployment (requires sudo)
+- Update system (from /etc/nixos): `sudo nixos-rebuild switch --flake /etc/nixos#lenovonix`
+- Update system (from local repo): `sudo nixos-rebuild switch --flake .#lenovonix`
 
 ### System Build
 - Dry-run (evaluate only): `nixos-rebuild dry-build --flake .#lenovonix`
@@ -12,6 +39,7 @@ This repository contains NixOS flake configuration for the Lenovo E14 Gen 5 lapt
 ### Home-Manager Build
 - Build user configuration: `home-manager build --flake .#paradox`
 - Switch user configuration: `home-manager switch --flake .#paradox`
+- Deploy from /etc/nixos: `home-manager switch --flake /etc/nixos#paradox`
 
 ### Flake Development
 - Update flake inputs: `nix flake update`
