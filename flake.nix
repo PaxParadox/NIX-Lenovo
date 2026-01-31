@@ -9,6 +9,10 @@
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -53,6 +57,49 @@
       };
       modules = [./home-manager/paradox.nix];
       extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
+    };
+
+    # Formatter for nix fmt
+    formatter.${system} = pkgs.alejandra;
+
+    # Checks for nix flake check
+    checks.${system} = {
+      # Verify NixOS configuration evaluates correctly
+      nixos-config =
+        (nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = {inherit inputs pkgsUnstable;};
+          modules = [
+            ./hosts/lenovonix/configuration.nix
+          ];
+        })
+        .config
+        .system
+        .build
+        .toplevel;
+
+      # Verify home-manager configuration evaluates correctly
+      home-config =
+        (home-manager.lib.homeManagerConfiguration {
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
+          modules = [./home-manager/paradox.nix];
+          extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
+        })
+        .activationPackage;
+
+      # Verify formatting is correct
+      formatting =
+        pkgs.runCommand "check-formatting"
+        {
+          nativeBuildInputs = [pkgs.alejandra];
+        }
+        ''
+          alejandra --check ${./.}
+          touch $out
+        '';
     };
   };
 }
