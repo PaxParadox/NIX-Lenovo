@@ -5,11 +5,14 @@
   config,
   pkgs,
   pkgsUnstable,
+  inputs,
   ...
 }: {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    # Import sops-nix module for secrets management
+    inputs.sops-nix.nixosModules.sops
   ];
 
   # Bootloader.
@@ -153,9 +156,33 @@
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # on your system were taken. It 's perfectly fine and recommended to leave
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.11"; # Did you read the comment?
+
+  # SOPS secrets management configuration
+  # See secrets/README.md for setup instructions
+  sops = {
+    # Default age key location
+    age.keyFile = "/home/paradox/.config/sops/age/keys.txt";
+
+    # Default secrets file
+    defaultSopsFile = ../../secrets/secrets.yaml;
+
+    # Example secret (uncomment after setting up secrets.yaml):
+    # secrets.wifi-password = {
+    #   # Key path in secrets.yaml (e.g., wifi.home.password)
+    #   key = "wifi.home.password";
+    #   # Where to place the decrypted secret
+    #   path = "/run/secrets/wifi-password";
+    # };
+
+    # Example with template (for config files with embedded secrets):
+    # templates."my-app-config".content = ''
+    #   api_key = "${config.sops.placeholder.api-key}"
+    #   db_password = "${config.sops.placeholder.db-password}"
+    # '';
+  };
 }
