@@ -4,6 +4,7 @@
   lib,
   inputs,
   pkgsUnstable,
+  pkgsMaster,
   ...
 }:
 
@@ -28,10 +29,12 @@
       bat
     ]
     ++ [
-      # programs from unstable channel (latest version)
-      pkgsUnstable.code-cursor
-      pkgsUnstable.opencode
+      # programs from unstable channel (binary cache, faster rebuilds)
       pkgsUnstable.zed-editor
+      # programs from master branch (latest version, may build from source)
+      pkgsMaster.opencode
+      pkgsMaster.code-cursor
+      pkgsMaster.warp-terminal
     ];
 
   # Git configuration
@@ -39,38 +42,66 @@
     enable = true;
     settings = {
       user.name = "Paradox";
-      user.email = "your-email@example.com"; # Please update this
+      user.email = "paradox.main@protonmail.com";
       init.defaultBranch = "main";
       pull.rebase = true;
     };
   };
 
-  # VS Code: configuration with extensions
+  # Shared shell aliases for all shells
+  home.shellAliases = {
+    ll = "eza -la";
+    gs = "git status";
+    gcm = "git commit -m";
+  };
+
+  # VS Code: configuration with extensions (VSCodium - OSS version)
   programs.vscode = {
     enable = true;
-    package = pkgsUnstable.vscode;
+    package = pkgsMaster.vscodium;
 
     profiles.default = {
-      extensions = with pkgsUnstable.vscode-marketplace; [
+      extensions = with pkgsMaster.vscode-extensions; [
         # Nix support
         jnoortheen.nix-ide # Full Nix IDE support (syntax, formatting, LSP)
 
-        # Python development
-        ms-python.python # Official Python extension
-        ms-python.black-formatter # Code formatting
-        ms-python.isort # Import sorting
+        # Python development (VSCodium-compatible)
+        charliermarsh.ruff # Fast Python linter, formatter, and import organizer
+        detachhead.basedpyright # Open-source type checker (Pyright fork)
+
+        # AI coding assistant (VSCodium-compatible)
+        continue.continue # Open-source AI code assistant
 
         # Additional useful extensions
-        vscodevim.vim # Optional: Vim keybindings (remove if not needed)
-        github.copilot # Optional: GitHub Copilot (if you use it)
+        vscodevim.vim # Vim keybindings
       ];
 
-      # VS Code: settings (optional but recommended)
+      # VS Code: settings
       userSettings = {
+        # Nix settings
         "nix.enableLanguageServer" = true;
         "nix.serverPath" = "${pkgs.nil}/bin/nil";
-        "python.formatting.provider" = "black";
-        "editor.formatOnSave" = true;
+
+        # Ruff settings (replaces black, isort, flake8)
+        "ruff.organizeImports" = true;
+        "ruff.fixAll" = true;
+        "ruff.lint.run" = "onSave";
+        "[python]" = {
+          "editor.defaultFormatter" = "charliermarsh.ruff";
+          "editor.formatOnSave" = true;
+          "editor.codeActionsOnSave" = {
+            "source.fixAll" = "explicit";
+            "source.organizeImports" = "explicit";
+          };
+        };
+
+        # BasedPyright settings
+        "python.analysis.typeCheckingMode" = "basic";
+
+        # Continue settings
+        "continue.enableTabAutocomplete" = true;
+
+        # General editor settings
         "editor.tabSize" = 2;
         "files.associations" = {
           "*.nix" = "nix";
@@ -82,20 +113,11 @@
   # Shell configuration (bash)
   programs.bash = {
     enable = true;
-    shellAliases = {
-      ll = "eza -la";
-      gs = "git status";
-      gcm = "git commit -m";
-    };
   };
 
   # Fish shell configuration
   programs.fish = {
     enable = true;
-    shellAliases = {
-      ll = "eza -la";
-      gs = "git status";
-    };
     # Set fish as default shell if desired
     # shellInit = ''
     #   set -g fish_greeting ""
@@ -132,7 +154,19 @@
     '';
   };
 
-
+  # Ghostty terminal configuration
+  programs.ghostty = {
+    enable = true;
+    package = pkgsMaster.ghostty;
+    settings = {
+      theme = "Builtin Dark";
+      font-size = 11;
+      window-padding-x = 10;
+      window-padding-y = 10;
+    };
+    enableFishIntegration = true;
+    enableBashIntegration = true;
+  };
 
   # Let home-manager manage its own state
   programs.home-manager.enable = true;

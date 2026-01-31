@@ -4,7 +4,6 @@
 {
   config,
   pkgs,
-  inputs,
   ...
 }: {
   imports = [
@@ -79,17 +78,14 @@
     #media-session.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+  # Enable touchpad support for laptop and future Hyprland use
+  services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.paradox = {
     isNormalUser = true;
     description = "Paradox";
     extraGroups = ["networkmanager" "wheel"];
-    packages = with pkgs; [
-      #  thunderbird
-    ];
   };
 
   # Install firefox.
@@ -104,7 +100,6 @@
     #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     pkgs.wget
     pkgs.bitwarden-desktop
-    pkgs.git
     # Home Manager CLI tool
     pkgs.home-manager
   ];
@@ -114,10 +109,10 @@
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+  programs.gnupg.agent = {
+    enable = true;
+    enableSSHSupport = true;
+  };
 
   # List services that you want to enable:
 
