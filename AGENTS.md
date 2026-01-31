@@ -19,8 +19,13 @@ Access via `pkgs`, `pkgsUnstable`, and `pkgsMaster` in configuration files throu
 ### Repository Structure
 - `flake.nix`: Entry point, defines nixosConfigurations and homeConfigurations
 - `hosts/lenovonix/`: System-level configuration (boot, networking, services, system packages)
-- `home-manager/paradox.nix`: User-level configuration (user packages, dotfiles, program settings)
-- `home-manager/modules/`: Empty directory for future modularization
+- `home-manager/home.nix`: Main home-manager entry point (imports modules)
+- `home-manager/modules/`: Modular user configurations
+  - `core.nix`: Essential packages (always enabled)
+  - `shells.nix`, `git.nix`, `editors.nix`, `terminal.nix`: Toggleable modules
+  - `media.nix`, `browsers.nix`: Placeholder modules for future use
+- `home-manager/archive/`: Backup of original configurations
+- `secrets/`: Encrypted secrets managed by sops-nix
 
 ### Configuration Pattern
 System configuration uses NixOS modules (services, programs) with home-manager integrated via `nixosModules.home-manager`. User configuration leverages home-manager's program modules (programs.vscode, programs.git, etc.) for declarative dotfile management.
@@ -157,9 +162,18 @@ For unit testing of Nix expressions, consider using `nix-test` or `runCommand` c
 3. Test with dry-build
 
 ### Adding User Packages
-1. Edit `home-manager/paradox.nix`
-2. Add package to `home.packages = with pkgs; [ ... ];`
+
+#### Option 1: Add to Core Module (Recommended for essential tools)
+1. Edit `home-manager/modules/core.nix`
+2. Add package to `home.packages` list
 3. Run `home-manager build --flake .#paradox`
+
+#### Option 2: Create a New Module (Recommended for feature groups)
+1. Create new file in `home-manager/modules/` (e.g., `development.nix`)
+2. Use the module template pattern with `mkEnableOption`
+3. Import in `home-manager/home.nix`
+4. Enable in `myModules` configuration
+5. See [Home-Manager Modules](#home-manager-modules) section for details
 
 ### Creating New Host
 1. Create directory `hosts/newhost/`
@@ -311,6 +325,169 @@ sops.secrets.wifi-password = {
 ```
 
 See `secrets/README.md` for detailed documentation.
+
+## Home-Manager Modules
+
+This repository uses a modular home-manager structure for better organization and maintainability.
+
+### Available Modules
+
+| Module | Purpose | Always Enabled | Options |
+|--------|---------|----------------|---------|
+| `core.nix` | Essential packages and base config | Yes | None |
+| `shells.nix` | Bash, fish, shell aliases | No | `enable`, `defaultShell` |
+| `git.nix` | Git configuration | No | `enable` |
+| `editors.nix` | Neovim, VS Code: | No | `enable`, `defaultEditor`, `vscode.theme`, `vscode.fontSize` |
+| `terminal.nix` | Tmux, Ghostty | No | `enable`, `ghostty.fontSize`, `ghostty.theme` |
+| `media.nix` | Media applications | No | `enable` (placeholder) |
+| `browsers.nix` | Web browsers | No | `enable` (placeholder) |
+
+### Module Configuration
+
+Configure modules in `home-manager/home.nix`:
+
+```nix
+{
+  myModules = {
+    # Enable/disable modules
+    shells.enable = true;
+    git.enable = true;
+    editors.enable = true;
+    terminal.enable = true;
+    media.enable = false;      # Disabled
+    browsers.enable = false;   # Disabled
+    
+    # Customize options
+    shells.defaultShell = "fish";  # "bash", "fish", or "none"
+    
+    editors = {
+      defaultEditor = "nvim";      # "nvim", "vscode", or "none"
+      vscode.theme = "Monokai";
+      vscode.fontSize = 16;
+    };
+    
+    terminal = {
+      ghostty.fontSize = 12;
+      ghostty.theme = "Builtin Solarized Dark";
+    };
+  };
+}
+```
+
+### Creating a New Module
+
+1. **Create module file** in `home-manager/modules/`:
+
+```nix
+{ config, pkgs, lib, ... }:
+
+with lib;
+
+let
+  cfg = config.myModules.newmodule;
+in {
+  options.myModules.newmodule = {
+    enable = mkEnableOption "new module description";
+    
+    # Add custom options
+    someOption = mkOption {
+      type = types.str;
+      default = "default-value";
+      description = "Description of this option";
+    };
+  };
+
+  config = mkIf cfg.enable {
+    # Module configuration here
+    home.packages = [ pkgs.some-package ];
+    
+    programs.some-program = {
+      enable = true;
+      setting = cfg.someOption;
+    };
+  };
+}
+```
+
+2. **Import in home.nix**:
+
+```nix
+{
+  imports = [
+    ./modules/core.nix
+    ./modules/newmodule.nix  # Add here
+  ];
+}
+```
+
+3. **Enable and configure**:
+
+```nix
+{
+  myModules.newmodule = {
+    enable = true;
+    someOption = "custom-value";
+  };
+}
+```
+
+### Per-Host Configuration
+
+The modular structure supports per-host customization for multi-machine setups:
+
+```nix
+{ config, pkgs, lib, ... }:
+
+let
+  hostname = builtins.getEnv "HOSTNAME";
+  isDesktop = hostname == "desktop";
+  isLaptop = hostname == "lenovonix";
+in {
+  # Common configuration
+  myModules.editors.enable = true;
+  
+  # Desktop-specific: larger fonts, more extensions
+  myModules.editors.vscode.fontSize = lib.mkIf isDesktop 16;
+  
+  # Laptop-specific: battery-optimized settings
+  home.packages = lib.mkIf isLaptop (with pkgs; [
+    powertop
+    tlp
+  ]);
+}
+```
+
+### Benefits of Modular Structure
+
+1. **Organization**: Each module is 15-60 lines vs 176-line monolith
+2. **Discoverability**: Easy to find specific configurations
+3. **Flexibility**: Toggle modules on/off per host or use case
+4. **Maintainability**: Changes are isolated to specific modules
+5. **Testing**: Can test individual modules independently
+6. **Collaboration**: Multiple people can work on different modules
+
+### Module Template
+
+Use this template for new modules:
+
+```nix
+# home-manager/modules/template.nix
+{ config, pkgs, lib, ... }:
+
+with lib;
+
+let
+  cfg = config.myModules.template;
+in {
+  options.myModules.template = {
+    enable = mkEnableOption "template module";
+  };
+
+  config = mkIf cfg.enable {
+    # Your configuration here
+  };
+}
+```
 
 ---
 *This file is intended for agentic coding assistants. Last updated: 2026-01-31*
