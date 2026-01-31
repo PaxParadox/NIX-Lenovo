@@ -1,6 +1,21 @@
-# Ignore build outputs from performing a nix-build or `nix build` command
+# Nix build outputs
 result
 result-*
 
-# Ignore automatically generated direnv output
-.direnv
+# Direnv
+.direnv/
+.envrc
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# SOPS local overrides (optional - uncomment if you want to ignore)
+# .sops.yaml
