@@ -49,14 +49,15 @@ System configuration uses NixOS modules (services, programs) with home-manager i
 ## Lint Commands
 
 ### Format Checking
+- **Format all files**: `nix fmt` (uses alejandra from flake.nix)
 - Check formatting with alejandra: `alejandra --check .`
 - Auto-format with alejandra: `alejandra .`
-- If nixfmt is configured: `nix fmt --check`
 
 ### Static Analysis
 - Run statix for linting: `statix check`
 - Apply statix suggestions: `statix fix`
 - Evaluate flake for errors: `nix flake check`
+- Run all checks: `nix flake check` (includes formatting, NixOS eval, home-manager eval)
 
 ### Nix Evaluation
 - Evaluate all Nix files for syntax: `nix-instantiate --parse --eval -E 'import ./flake.nix'`
@@ -145,7 +146,8 @@ For unit testing of Nix expressions, consider using `nix-test` or `runCommand` c
 - Prefer program modules (`programs.git.enable = true`) over manual package installation.
 
 ### Security
-- Never hardcode secrets; use `age` or `sops-nix` for secret management.
+- Never hardcode secrets; use `sops-nix` for secret management
+- See [Secrets Management](#secrets-management) section for setup instructions
 
 ## Common Operations (for Agents)
 
@@ -176,5 +178,139 @@ For unit testing of Nix expressions, consider using `nix-test` or `runCommand` c
 - [Statix Documentation](https://github.com/nerdypepper/statix)
 - [Alejandra](https://github.com/kamadorueda/alejandra)
 
+## Git Workflow Guidelines
+
+### Commit Strategy
+Always commit logical changes separately rather than bundling unrelated changes:
+
+**Do:**
+```bash
+# Commit 1: Add new feature
+git add flake.nix
+git commit -m "feat: add sops-nix for secrets management"
+
+# Commit 2: Update documentation
+git add AGENTS.md
+git commit -m "docs: document sops-nix setup and usage"
+
+# Commit 3: Fix formatting
+git add hosts/lenovonix/configuration.nix
+git commit -m "style: fix indentation in configuration"
+```
+
+**Don't:**
+```bash
+# Avoid bundling unrelated changes
+git add .
+git commit -m "various updates"
+```
+
+### Commit Message Format
+Use conventional commits for clarity:
+- `feat:` - New feature or capability
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `style:` - Code style/formatting (no functional change)
+- `refactor:` - Code restructuring (no functional change)
+- `chore:` - Maintenance tasks, dependencies, etc.
+
+### When to Commit
+- After completing a logical unit of work
+- Before switching to a different task
+- After fixing a specific issue
+- Before running potentially destructive commands
+
+## Secrets Management
+
+This repository uses **sops-nix** for secure secret management. Secrets are encrypted using age keys and can be safely committed to git.
+
+### Quick Setup
+
+1. **Generate age key:**
+   ```bash
+   mkdir -p ~/.config/sops/age
+   age-keygen -o ~/.config/sops/age/keys.txt
+   ```
+
+2. **Configure .sops.yaml:**
+   ```yaml
+   keys:
+     - &admin_age <YOUR_PUBLIC_KEY>
+   creation_rules:
+     - path_regex: secrets/.*\.yaml$
+       key_groups:
+         - age:
+             - *admin_age
+   ```
+
+3. **Create and edit secrets:**
+   ```bash
+   sops secrets/secrets.yaml
+   ```
+
+4. **Use secrets in configuration:**
+   ```nix
+   sops.secrets.my-password = {
+     sopsFile = ./secrets/secrets.yaml;
+     key = "path.in.yaml";
+   };
+   ```
+
+### Why sops-nix?
+
+- **Secure**: Uses modern age encryption
+- **Convenient**: Edit secrets with `sops` command
+- **Flexible**: Supports YAML, JSON, binary, .env formats
+- **Shareable**: Multiple keys can decrypt same secrets
+- **Integrated**: Works with both NixOS and home-manager
+
+### Important Security Notes
+
+- **Never commit** `~/.config/sops/age/keys.txt` (private key)
+- **Do commit** `.sops.yaml` (only contains public keys)
+- **Do commit** encrypted secrets in `secrets/`
+- Backup your age private key securely (password manager, encrypted USB)
+- Use different keys for different machines when possible
+
+### Common Operations
+
+```bash
+# Edit secrets
+sops secrets/secrets.yaml
+
+# View decrypted secrets
+sops -d secrets/secrets.yaml
+
+# Add new key for another machine
+sops updatekeys secrets/secrets.yaml
+
+# Rotate encryption keys
+sops rotate -i secrets/secrets.yaml
+```
+
+### Example: WiFi Password
+
+```yaml
+# secrets/secrets.yaml
+wifi:
+  home:
+    ssid: "MyNetwork"
+    password: "super-secret-password"
+```
+
+```nix
+# configuration.nix
+networking.wireless.networks = {
+  "MyNetwork".psk = config.sops.secrets.wifi-password.path;
+};
+
+sops.secrets.wifi-password = {
+  sopsFile = ./secrets/secrets.yaml;
+  key = "wifi.home.password";
+};
+```
+
+See `secrets/README.md` for detailed documentation.
+
 ---
-*This file is intended for agentic coding assistants. Last updated: $(date)*
+*This file is intended for agentic coding assistants. Last updated: 2026-01-31*
