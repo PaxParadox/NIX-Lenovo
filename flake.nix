@@ -44,7 +44,7 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = false;
-          home-manager.users.paradox = import ./home-manager/paradox.nix;
+          home-manager.users.paradox = import ./home-manager/home.nix;
           home-manager.extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
         }
       ];
@@ -85,7 +85,7 @@
             inherit system;
             config.allowUnfree = true;
           };
-          modules = [./home-manager/paradox.nix];
+      modules = [./home-manager/home.nix];
           extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
         })
         .activationPackage;
