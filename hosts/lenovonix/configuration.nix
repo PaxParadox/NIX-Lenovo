@@ -4,6 +4,7 @@
 {
   config,
   pkgs,
+  pkgsUnstable,
   ...
 }: {
   imports = [
@@ -102,6 +103,10 @@
     pkgs.bitwarden-desktop
     # Home Manager CLI tool
     pkgs.home-manager
+    # Gaming packages from unstable (better cache, newer versions)
+    pkgsUnstable.protonplus
+    pkgsUnstable.bottles
+    pkgsUnstable.mangohud
   ];
 
   nix.settings.extra-experimental-features = ["nix-command" "flakes"];
@@ -112,6 +117,27 @@
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;
+  };
+
+  # Gaming configuration
+  programs.steam = {
+    enable = true;
+    protontricks.enable = true;
+  };
+
+  programs.gamemode = {
+    enable = true;
+    enableRenice = true;
+    settings = {
+      general = {
+        renice = 10;
+      };
+    };
+  };
+
+  programs.gamescope = {
+    enable = true;
+    capSysNice = true;
   };
 
   # List services that you want to enable:
