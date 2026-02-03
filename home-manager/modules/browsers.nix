@@ -3,7 +3,7 @@
 # Future module for web browsers.
 # Examples: firefox, chromium, brave, etc.
 
-{ config, pkgs, lib, ... }:
+{ config, pkgs, inputs, lib, ... }:
 
 with lib;
 
@@ -15,11 +15,8 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # Add browser packages here when ready
-    # home.packages = with pkgs; [
-    #   firefox
-    #   chromium
-    #   brave
-    # ];
+    home.packages = [
+      inputs.zen-browser.packages.${pkgs.system}.default
+    ];
   };
 }

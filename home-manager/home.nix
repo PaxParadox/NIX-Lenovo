@@ -69,7 +69,7 @@ in {
     };
 
     browsers = {
-      enable = false;
+      enable = true;
     };
   };
 
