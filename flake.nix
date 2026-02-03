@@ -86,7 +86,7 @@
             config.allowUnfree = true;
           };
       modules = [./home-manager/home.nix];
-          extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
+      extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
         })
         .activationPackage;
 
