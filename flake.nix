@@ -13,19 +13,24 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    kimi-cli = {
+      url = "github:MoonshotAI/kimi-cli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
     home-manager,
+    kimi-cli,
     ...
   } @ inputs: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-      };
+      inherit system;
+      config.allowUnfree = true;
+    };
     pkgsUnstable = import inputs.nixpkgs-unstable {
       inherit system;
       config.allowUnfree = true;
@@ -37,7 +42,7 @@
   in {
     nixosConfigurations.lenovonix = nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = {inherit inputs pkgsUnstable;};
+      specialArgs = {inherit inputs pkgsUnstable kimi-cli;};
       modules = [
         ./hosts/lenovonix/configuration.nix
         home-manager.nixosModules.home-manager
@@ -85,8 +90,8 @@
             inherit system;
             config.allowUnfree = true;
           };
-      modules = [./home-manager/home.nix];
-      extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
+          modules = [./home-manager/home.nix];
+          extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
         })
         .activationPackage;
 

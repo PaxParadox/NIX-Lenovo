@@ -6,6 +6,7 @@
   pkgs,
   pkgsUnstable,
   inputs,
+  kimi-cli,
   ...
 }: {
   imports = [
@@ -110,6 +111,8 @@
     pkgsUnstable.protonplus
     pkgsUnstable.bottles
     pkgsUnstable.mangohud
+    # Kimi Code CLI - AI coding assistant
+    kimi-cli.packages.${pkgs.system}.kimi-cli
   ];
 
   nix.settings.extra-experimental-features = ["nix-command" "flakes"];
