@@ -68,8 +68,17 @@ in {
       enable = false;
     };
 
+    # Browser configuration
     browsers = {
       enable = true;
+      defaultBrowser = "zen";  # Options: "zen", "firefox", "chromium", "brave", "vivaldi", "none"
+
+      # Enable/disable individual browsers
+      zen.enable = true;
+      firefox.enable = true;
+      chromium.enable = false;
+      brave.enable = false;
+      vivaldi.enable = false;
     };
   };
 
