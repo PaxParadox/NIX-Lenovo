@@ -51,12 +51,36 @@
     LC_TIME = "de_DE.UTF-8";
   };
 
-  # Enable the X11 windowing system.
+  # Enable the X11 windowing system (needed for XWayland).
   services.xserver.enable = true;
 
-  # Enable the GNOME Desktop Environment.
-  services.displayManager.gdm.enable = true;
+  # Display Manager: GDM supports both GNOME and Hyprland
+  # To switch to Hyprland-only with SDDM, see commented section below
+  services.displayManager.gdm = {
+    enable = true;
+    wayland = true;
+  };
+
+  # Desktop Environments
+  # Keep GNOME enabled for dual-DE setup
+  # If you experience issues, set services.desktopManager.gnome.enable = false
   services.desktopManager.gnome.enable = true;
+
+  # Enable Hyprland Window Manager
+  programs.hyprland = {
+    enable = true;
+    package = pkgsUnstable.hyprland;
+    xwayland.enable = true;
+  };
+
+  # Alternative: SDDM (uncomment to use instead of GDM)
+  # Note: Disable GDM above before enabling this
+  # services.displayManager.sddm = {
+  #   enable = true;
+  #   wayland.enable = true;
+  #   theme = "where_is_my_sddm_theme";
+  # };
+  # services.desktopManager.gnome.enable = false;
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -83,8 +107,46 @@
     #media-session.enable = true;
   };
 
-  # Enable touchpad support for laptop and future Hyprland use
-  services.xserver.libinput.enable = true;
+  # Enable touchpad support for laptop and Hyprland
+  services.libinput.enable = true;
+
+  # XDG Desktop Portal configuration for Hyprland
+  # This enables screen sharing, file opening, etc.
+  xdg.portal = {
+    enable = true;
+    extraPortals = [
+      pkgsUnstable.xdg-desktop-portal-hyprland
+      pkgs.xdg-desktop-portal-gtk
+    ];
+    configPackages = [ pkgsUnstable.hyprland ];
+  };
+
+  # Polkit authentication agent (for GUI elevation requests)
+  security.polkit.enable = true;
+  systemd = {
+    user.services.polkit-gnome-authentication-agent-1 = {
+      description = "polkit-gnome-authentication-agent-1";
+      wantedBy = [ "graphical-session.target" ];
+      wants = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+        Restart = "on-failure";
+        RestartSec = 1;
+        TimeoutStopSec = 10;
+      };
+    };
+  };
+
+  # Enable dbus for notifications and other services
+  services.dbus.enable = true;
+
+  # Fonts for Hyprland (Nerd Fonts for icons in waybar)
+  fonts.packages = with pkgs; [
+    jetbrains-mono
+    nerd-fonts.jetbrains-mono
+  ];
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.paradox = {
@@ -113,6 +175,24 @@
     pkgsUnstable.mangohud
     # Kimi Code CLI - AI coding assistant
     kimi-cli.packages.${pkgs.system}.kimi-cli
+
+    # Hyprland system utilities
+    pkgsUnstable.hyprland
+    pkgsUnstable.hyprlock
+    pkgsUnstable.hypridle
+    pkgsUnstable.xdg-desktop-portal-hyprland
+    pkgs.xdg-desktop-portal-gtk
+    pkgsUnstable.grimblast
+    pkgsUnstable.wl-clipboard
+    pkgs.brightnessctl
+    pkgs.playerctl
+
+    # Qt platform plugins for Wayland
+    pkgs.qt5.qtwayland
+    pkgs.qt6.qtwayland
+
+    # Authentication agent (polkit)
+    pkgs.polkit_gnome
   ];
 
   nix.settings.extra-experimental-features = ["nix-command" "flakes"];

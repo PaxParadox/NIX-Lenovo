@@ -25,6 +25,7 @@ in {
     ./modules/terminal.nix
     ./modules/media.nix
     ./modules/browsers.nix
+    ./modules/hyprland.nix
   ];
 
   # Module configuration
@@ -79,6 +80,13 @@ in {
       chromium.enable = true;
       brave.enable = true;
       vivaldi.enable = true;
+    };
+
+    # Hyprland configuration
+    hyprland = {
+      enable = true;
+      # Uncomment and modify if you have specific monitor requirements
+      # monitor = "eDP-1,1920x1080@60,0x0,1";
     };
   };
 
