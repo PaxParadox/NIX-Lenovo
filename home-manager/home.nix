@@ -76,9 +76,9 @@ in {
       # Enable/disable individual browsers
       zen.enable = true;
       firefox.enable = true;
-      chromium.enable = false;
-      brave.enable = false;
-      vivaldi.enable = false;
+      chromium.enable = true;
+      brave.enable = true;
+      vivaldi.enable = true;
     };
   };
 
