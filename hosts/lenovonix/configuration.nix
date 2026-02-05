@@ -111,11 +111,11 @@
   services.libinput.enable = true;
 
   # XDG Desktop Portal configuration for Hyprland
-  # This enables screen sharing, file opening, etc.
+  # Note: programs.hyprland.enable already adds xdg-desktop-portal-hyprland automatically
+  # Only add additional portals not provided by the DE/WM
   xdg.portal = {
     enable = true;
     extraPortals = [
-      pkgsUnstable.xdg-desktop-portal-hyprland
       pkgs.xdg-desktop-portal-gtk
     ];
     configPackages = [ pkgsUnstable.hyprland ];
@@ -180,8 +180,8 @@
     pkgsUnstable.hyprland
     pkgsUnstable.hyprlock
     pkgsUnstable.hypridle
-    pkgsUnstable.xdg-desktop-portal-hyprland
-    pkgs.xdg-desktop-portal-gtk
+    # Note: xdg-desktop-portal packages are configured in xdg.portal.extraPortals
+    # Do not add them here to avoid duplicate service file conflicts
     pkgsUnstable.grimblast
     pkgsUnstable.wl-clipboard
     pkgs.brightnessctl

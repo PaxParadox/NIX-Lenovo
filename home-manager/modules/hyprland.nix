@@ -60,10 +60,6 @@ in {
         pavucontrol # PulseAudio volume control GUI
         brightnessctl # Screen brightness
         playerctl # Media player control
-        nwg-look # GTK theme switcher for Wayland
-        libsForQt5.qt5ct # Qt5 theme configuration
-        kdePackages.qt6ct # Qt6 theme configuration
-        papirus-icon-theme # Modern icon theme
         nautilus # GNOME Files
       ]);
 

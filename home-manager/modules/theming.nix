@@ -15,12 +15,9 @@ let
       name = "Catppuccin-Mocha";
       gtkTheme = pkgs.catppuccin-gtk.override {
         variant = "mocha";
-        accent = "mauve";
+        accents = [ "mauve" ];
       };
-      iconTheme = pkgs.catppuccin-papirus-folders.override {
-        flavor = "mocha";
-        accent = "mauve";
-      };
+      iconTheme = pkgs.papirus-icon-theme;
       cursorTheme = pkgs.catppuccin-cursors;
       cursorName = "catppuccin-mocha-dark-cursors";
       qtStyle = "kvantum";
@@ -313,8 +310,7 @@ in {
       kdePackages.qt6ct
       
       # Kvantum for Qt theming
-      libsForQt5.kvantum
-      libsForQt5.kvantum-qt5
+      libsForQt5.qtstyleplugin-kvantum
     ];
 
     # Cursor environment variable
@@ -328,7 +324,7 @@ in {
       "org/gnome/desktop/interface" = {
         color-scheme = "prefer-dark";
         gtk-theme = selectedTheme.name;
-        icon-theme = if cfg.theme == "catppuccin-mocha" then "Papirus-Dark" else selectedTheme.iconTheme.name;
+        icon-theme = "Papirus-Dark";
         cursor-theme = selectedTheme.cursorName;
       };
     };
