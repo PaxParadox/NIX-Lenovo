@@ -87,11 +87,18 @@ in {
           kb_rules =
 
           follow_mouse = 1
+          sensitivity = 0
+
           touchpad {
             natural_scroll = true
           }
-          sensitivity = 0
         }
+
+        # Gestures configuration
+        # 3-finger horizontal swipes for workspace switching
+        # Using dispatcher action for explicit workspace switching
+        gesture = 3, left, dispatcher, workspace, +1
+        gesture = 3, right, dispatcher, workspace, -1
 
         # General settings
         general {
@@ -142,27 +149,34 @@ in {
           new_status = master
         }
 
-        # Gestures (for touchpads)
-        gestures {
-          workspace_swipe = true
-          workspace_swipe_fingers = 3
-        }
-
         # Misc settings
         misc {
           force_default_wallpaper = -1
           disable_hyprland_logo = false
         }
 
-        # Window rules
-        windowrulev2 = nomaximizerequest, class:.*
-        windowrulev2 = opacity 0.9 0.9, class:^(ghostty)$
-        windowrulev2 = opacity 0.95 0.95, class:^(code)$
+        # Window rules - new v0.53+ syntax
+        rule = match:class:^(imv)$, float:true
+        rule = match:class:^(mpv)$, float:true
+        rule = match:class:^(ghostty)$, opacity:0.9 0.9
+        rule = match:class:^(code)$, opacity:0.95 0.95
 
-        # Layerrules for blur
-        layerrule = blur, waybar
-        layerrule = blur, rofi
-        layerrule = blur, notifications
+        # Layerrules for blur - v0.53+ block syntax
+        layerrule {
+          name = waybar_blur
+          match:namespace = ^(waybar)$
+          blur = true
+        }
+        layerrule {
+          name = rofi_blur
+          match:namespace = ^(rofi)$
+          blur = true
+        }
+        layerrule {
+          name = notifications_blur
+          match:namespace = ^(notifications)$
+          blur = true
+        }
 
         # Autostart applications
         exec-once = swww init
@@ -177,8 +191,8 @@ in {
         $mainMod = SUPER
 
         # Basic window management
-        bind = $mainMod, Q, exec, ghostty
-        bind = $mainMod, C, killactive,
+        bind = $mainMod, Return, exec, ghostty
+        bind = $mainMod, Q, killactive,
         bind = $mainMod, M, exit,
         bind = $mainMod, V, togglefloating,
         bind = $mainMod, R, exec, rofi -show drun -show-icons
