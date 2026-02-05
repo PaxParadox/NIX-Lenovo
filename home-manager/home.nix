@@ -26,6 +26,7 @@ in {
     ./modules/media.nix
     ./modules/browsers.nix
     ./modules/hyprland.nix
+    ./modules/theming.nix
   ];
 
   # Module configuration
@@ -87,6 +88,19 @@ in {
       enable = true;
       # Uncomment and modify if you have specific monitor requirements
       # monitor = "eDP-1,1920x1080@60,0x0,1";
+    };
+
+    # Theming configuration - pick your theme!
+    theming = {
+      enable = true;
+      # Available themes:
+      # - "catppuccin-mocha"  (default, warm pastel - most popular)
+      # - "nord"              (cold arctic blue tones)
+      # - "gruvbox-dark"      (retro warm amber/orange)
+      # - "dracula"           (vibrant purple/pink)
+      # - "tokyo-night"       (neon cyber dark blue)
+      # - "rose-pine"         (soft elegant pink/beige)
+      theme = "catppuccin-mocha";
     };
   };
 
