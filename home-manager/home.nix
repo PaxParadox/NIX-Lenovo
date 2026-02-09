@@ -85,7 +85,7 @@ in {
 
     # Hyprland configuration
     hyprland = {
-      enable = true;
+      enable = false;
       # Uncomment and modify if you have specific monitor requirements
       # monitor = "eDP-1,1920x1080@60,0x0,1";
     };
@@ -100,7 +100,7 @@ in {
       # - "dracula"           (vibrant purple/pink)
       # - "tokyo-night"       (neon cyber dark blue)
       # - "rose-pine"         (soft elegant pink/beige)
-      theme = "catppuccin-mocha";
+      theme = "tokyo-night";
     };
   };
 
