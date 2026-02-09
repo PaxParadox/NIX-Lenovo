@@ -46,8 +46,10 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # GNOME Shell extensions
-    home.packages = with pkgs.gnomeExtensions; [
+    # GNOME Shell extensions + wofi for Wayland app launcher
+    home.packages = (with pkgs; [
+      wofi
+    ]) ++ (with pkgs.gnomeExtensions; [
       # Install enabled extensions
       (mkIf cfg.extensions.user-themes user-themes)
       (mkIf cfg.extensions.blur-my-shell blur-my-shell)
@@ -63,7 +65,7 @@ in {
       (mkIf cfg.extensions.sound-output-device-chooser sound-output-device-chooser)
       (mkIf cfg.extensions.just-perfection just-perfection)
       (mkIf cfg.extensions.pop-shell pop-shell)
-    ];
+    ]);
 
     # Enable GNOME Shell integration
     programs.gnome-shell = {
@@ -276,10 +278,10 @@ in {
         binding = "<Super>Return";
       };
 
-      # Custom keybinding: Launch App (Rofi or GNOME overview)
+      # Custom keybinding: Launch App (wofi for Wayland)
       "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
         name = "Launch App";
-        command = "rofi -show drun -show-icons";
+        command = "wofi --show drun";
         binding = "<Super>r";
       };
 
