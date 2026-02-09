@@ -114,6 +114,7 @@ in {
         user-themes = true;      # Custom shell themes
         blur-my-shell = true;    # Blur effects for shell
         rounded-corners = true;  # Rounded window corners
+        just-perfection = true;  # Fine-tune GNOME UI
         
         # Dock & taskbar
         dash-to-dock = true;     # Better dock
@@ -121,6 +122,13 @@ in {
         # System tray & utilities
         appindicator = true;     # System tray icons
         clipboard-history = true; # Clipboard manager
+        sound-output-device-chooser = true; # Quick audio switching
+        
+        # Tiling window management
+        pop-shell = true;        # Tiling WM features
+        
+        # Phone integration
+        gsconnect = true;        # KDE Connect for GNOME
         
         # Optional (disabled by default)
         caffeine = false;        # Prevent auto-suspend

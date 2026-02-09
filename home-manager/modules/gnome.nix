@@ -28,6 +28,12 @@ in {
       caffeine = mkEnableOption "Caffeine extension (disable auto-suspend)" // { default = false; };
       rounded-corners = mkEnableOption "Rounded Window Corners extension" // { default = true; };
       vitals = mkEnableOption "Vitals extension (system monitor)" // { default = false; };
+      
+      # Additional popular extensions
+      gsconnect = mkEnableOption "GSConnect (KDE Connect for GNOME)" // { default = true; };
+      sound-output-device-chooser = mkEnableOption "Sound Output Device Chooser" // { default = true; };
+      just-perfection = mkEnableOption "Just Perfection (GNOME UI tuning)" // { default = true; };
+      pop-shell = mkEnableOption "Pop Shell (tiling window management)" // { default = true; };
     };
 
     settings = {
@@ -51,6 +57,12 @@ in {
       (mkIf cfg.extensions.caffeine caffeine)
       (mkIf cfg.extensions.rounded-corners rounded-window-corners-reborn)
       (mkIf cfg.extensions.vitals vitals)
+      
+      # Additional popular extensions
+      (mkIf cfg.extensions.gsconnect gsconnect)
+      (mkIf cfg.extensions.sound-output-device-chooser sound-output-device-chooser)
+      (mkIf cfg.extensions.just-perfection just-perfection)
+      (mkIf cfg.extensions.pop-shell pop-shell)
     ];
 
     # Enable GNOME Shell integration
@@ -67,6 +79,12 @@ in {
         (mkIf cfg.extensions.caffeine { package = pkgs.gnomeExtensions.caffeine; })
         (mkIf cfg.extensions.rounded-corners { package = pkgs.gnomeExtensions.rounded-window-corners-reborn; })
         (mkIf cfg.extensions.vitals { package = pkgs.gnomeExtensions.vitals; })
+        
+        # Additional popular extensions
+        (mkIf cfg.extensions.gsconnect { package = pkgs.gnomeExtensions.gsconnect; })
+        (mkIf cfg.extensions.sound-output-device-chooser { package = pkgs.gnomeExtensions.sound-output-device-chooser; })
+        (mkIf cfg.extensions.just-perfection { package = pkgs.gnomeExtensions.just-perfection; })
+        (mkIf cfg.extensions.pop-shell { package = pkgs.gnomeExtensions.pop-shell; })
       ];
     };
 
@@ -166,6 +184,64 @@ in {
         show-storage = false;
         show-battery = true;
         position-in-panel = 0; # Right side
+      };
+
+      # GSConnect settings (if enabled)
+      "org/gnome/shell/extensions/gsconnect" = mkIf cfg.extensions.gsconnect {
+        enabled = true;
+        show-indicator = true;
+        # Enable only the most useful plugins
+        plugin-clipboard = true;
+        plugin-mpris = true;
+        plugin-notification = true;
+        plugin-ring = true;
+        plugin-runcommand = true;
+        plugin-share = true;
+        plugin-sftp = true;
+        plugin-sms = true;
+      };
+
+      # Sound Output Device Chooser settings (if enabled)
+      "org/gnome/shell/extensions/sound-output-device-chooser" = mkIf cfg.extensions.sound-output-device-chooser {
+        show-profiles = true;
+        show-inputs = true;
+        show-output-devices = true;
+      };
+
+      # Just Perfection settings (if enabled)
+      "org/gnome/shell/extensions/just-perfection" = mkIf cfg.extensions.just-perfection {
+        # UI tweaks
+        animation = 1; # Default animations
+        dash-app-running = true;
+        dash-separator = true;
+        panel = true;
+        panel-in-overview = true;
+        activities-button = true;
+        app-menu = false; # Hide app menu (redundant with modern GNOME)
+        clock-menu = true;
+        keyboard-layout = true;
+        accessibility-menu = true;
+        # Workspace tweaks
+        workspace-popup = false; # Disable workspace switcher popup
+        # Notification tweaks
+        notification-banner-position = 2; # Top right
+      };
+
+      # Pop Shell settings (if enabled)
+      "org/gnome/shell/extensions/pop-shell" = mkIf cfg.extensions.pop-shell {
+        # Enable tiling mode
+        tile-by-default = false; # Manual tiling mode (toggle with Super+Y)
+        # Window gaps
+        gap-outer = 8;
+        gap-inner = 8;
+        # Show title bars on tiled windows
+        show-title = true;
+        # Smart gaps (no gaps with single window)
+        smart-gaps = true;
+        # Focus follows mouse
+        focus-follows-cursor = false;
+        # Stacking (tabbed windows)
+        stacking-with-mouse = true;
       };
 
       # User Themes - set shell theme (if enabled and using catppuccin)
