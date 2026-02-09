@@ -65,7 +65,7 @@ in {
       enable = true;
       defaultApplications = let
         browserDesktop = {
-          "zen" = "zen.desktop";
+          "zen" = "zen-beta.desktop";
           "firefox" = "firefox.desktop";
           "chromium" = "chromium-browser.desktop";
           "brave" = "brave-browser.desktop";
