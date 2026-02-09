@@ -18,8 +18,8 @@ let
         accents = [ "mauve" ];
       };
       iconTheme = pkgs.papirus-icon-theme;
-      cursorTheme = pkgs.catppuccin-cursors;
-      cursorName = "catppuccin-mocha-dark-cursors";
+      cursorTheme = pkgs.bibata-cursors;
+      cursorName = "Bibata-Modern-Ice";
       qtStyle = "kvantum";
       colors = {
         base = "#1e1e2e";
@@ -164,7 +164,7 @@ let
 
     tokyo-night = {
       name = "Tokyo-Night";
-      gtkTheme = pkgs.tokyo-night-gtk;
+      gtkTheme = pkgs.tokyonight-gtk-theme;
       iconTheme = pkgs.tela-icon-theme;
       cursorTheme = pkgs.bibata-cursors;
       cursorName = "Bibata-Modern-Ice";
@@ -323,9 +323,9 @@ in {
     dconf.settings = {
       "org/gnome/desktop/interface" = {
         color-scheme = "prefer-dark";
-        gtk-theme = selectedTheme.name;
-        icon-theme = "Papirus-Dark";
-        cursor-theme = selectedTheme.cursorName;
+        gtk-theme = lib.mkDefault selectedTheme.name;
+        icon-theme = lib.mkDefault "Papirus-Dark";
+        cursor-theme = lib.mkDefault selectedTheme.cursorName;
       };
     };
 
