@@ -112,12 +112,12 @@ in {
       extensions = {
         # Visual enhancements
         user-themes = true;      # Custom shell themes
-        blur-my-shell = true;    # Blur effects for shell
-        rounded-corners = true;  # Rounded window corners
+        blur-my-shell = false;    # Blur effects for shell
+        rounded-corners = false;  # Rounded window corners
         just-perfection = true;  # Fine-tune GNOME UI
         
         # Dock & taskbar
-        dash-to-dock = true;     # Better dock
+        dash-to-dock = false;     # Better dock
         
         # System tray & utilities
         appindicator = true;     # System tray icons
@@ -125,14 +125,14 @@ in {
         sound-output-device-chooser = true; # Quick audio switching
         
         # Tiling window management
-        pop-shell = true;        # Tiling WM features
+        pop-shell = false;        # Tiling WM features
         
         # Phone integration
         gsconnect = true;        # KDE Connect for GNOME
         
         # Optional (disabled by default)
-        caffeine = false;        # Prevent auto-suspend
-        vitals = false;          # System monitor in panel
+        caffeine = true;        # Prevent auto-suspend
+        vitals = true;          # System monitor in panel
       };
 
       # GNOME settings
