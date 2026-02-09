@@ -27,6 +27,7 @@ in {
     ./modules/browsers.nix
     ./modules/hyprland.nix
     ./modules/theming.nix
+    ./modules/gnome.nix
   ];
 
   # Module configuration
@@ -101,6 +102,39 @@ in {
       # - "tokyo-night"       (neon cyber dark blue)
       # - "rose-pine"         (soft elegant pink/beige)
       theme = "tokyo-night";
+    };
+
+    # GNOME Shell customization with extensions
+    gnome = {
+      enable = true;
+      
+      # Extensions - enable/disable as needed
+      extensions = {
+        # Visual enhancements
+        user-themes = true;      # Custom shell themes
+        blur-my-shell = true;    # Blur effects for shell
+        rounded-corners = true;  # Rounded window corners
+        
+        # Dock & taskbar
+        dash-to-dock = true;     # Better dock
+        
+        # System tray & utilities
+        appindicator = true;     # System tray icons
+        clipboard-history = true; # Clipboard manager
+        
+        # Optional (disabled by default)
+        caffeine = false;        # Prevent auto-suspend
+        vitals = false;          # System monitor in panel
+      };
+
+      # GNOME settings
+      settings = {
+        disable-animations = false;
+        show-battery-percentage = true;
+        clock-show-seconds = false;
+        clock-show-weekday = true;
+        enable-hot-corners = true;
+      };
     };
   };
 
