@@ -271,6 +271,11 @@ in {
         ];
       };
 
+      # Window manager keybindings
+      "org/gnome/desktop/wm/keybindings" = {
+        close = ["<Super>q"];
+      };
+
       # Custom keybinding: Open Terminal (Ghostty)
       "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
         name = "Open Terminal";
