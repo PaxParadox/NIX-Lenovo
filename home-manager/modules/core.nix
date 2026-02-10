@@ -25,6 +25,7 @@
     # System tools
     git
     tmux
+    mediawriter
     
     # Shells
     bash
