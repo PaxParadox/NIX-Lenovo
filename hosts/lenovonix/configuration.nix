@@ -31,6 +31,8 @@
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
+  # Enable Bluetooth
+  hardware.bluetooth.enable = true;
   networking.networkmanager.enable = true;
 
   # Set your time zone.
@@ -54,33 +56,16 @@
   # Enable the X11 windowing system (needed for XWayland).
   services.xserver.enable = true;
 
-  # Display Manager: GDM supports both GNOME and Hyprland
-  # To switch to Hyprland-only with SDDM, see commented section below
-  services.displayManager.gdm = {
+  # Display Manager: SDDM for KDE Plasma
+  services.displayManager.sddm = {
     enable = true;
-    wayland = true;
+    wayland.enable = true;
   };
 
-  # Desktop Environments
-  # Keep GNOME enabled for dual-DE setup
-  # If you experience issues, set services.desktopManager.gnome.enable = false
-  services.desktopManager.gnome.enable = true;
-
-  # Enable Hyprland Window Manager
-  programs.hyprland = {
+  # Desktop Environment: KDE Plasma 6
+  services.desktopManager.plasma6 = {
     enable = true;
-    package = pkgsUnstable.hyprland;
-    xwayland.enable = true;
   };
-
-  # Alternative: SDDM (uncomment to use instead of GDM)
-  # Note: Disable GDM above before enabling this
-  # services.displayManager.sddm = {
-  #   enable = true;
-  #   wayland.enable = true;
-  #   theme = "where_is_my_sddm_theme";
-  # };
-  # services.desktopManager.gnome.enable = false;
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -107,31 +92,30 @@
     #media-session.enable = true;
   };
 
-  # Enable touchpad support for laptop and Hyprland
+  # Enable touchpad support for laptop
   services.libinput.enable = true;
 
-  # XDG Desktop Portal configuration for Hyprland
-  # Note: programs.hyprland.enable already adds xdg-desktop-portal-hyprland automatically
-  # Only add additional portals not provided by the DE/WM
+  # XDG Desktop Portal configuration
+  # KDE Plasma provides its own portal (xdg-desktop-portal-kde)
   xdg.portal = {
     enable = true;
     extraPortals = [
       pkgs.xdg-desktop-portal-gtk
     ];
-    configPackages = [ pkgsUnstable.hyprland ];
+    # Plasma portal is automatically added when plasma6 is enabled
   };
 
   # Polkit authentication agent (for GUI elevation requests)
   security.polkit.enable = true;
   systemd = {
-    user.services.polkit-gnome-authentication-agent-1 = {
-      description = "polkit-gnome-authentication-agent-1";
-      wantedBy = [ "graphical-session.target" ];
-      wants = [ "graphical-session.target" ];
-      after = [ "graphical-session.target" ];
+    user.services.polkit-kde-authentication-agent-1 = {
+      description = "polkit-kde-authentication-agent-1";
+      wantedBy = ["graphical-session.target"];
+      wants = ["graphical-session.target"];
+      after = ["graphical-session.target"];
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+        ExecStart = "${pkgs.kdePackages.polkit-kde-agent-1}/libexec/polkit-kde-agent-1";
         Restart = "on-failure";
         RestartSec = 1;
         TimeoutStopSec = 10;
@@ -142,7 +126,7 @@
   # Enable dbus for notifications and other services
   services.dbus.enable = true;
 
-  # Fonts for Hyprland (Nerd Fonts for icons in waybar)
+  # Fonts (Nerd Fonts for terminal icons)
   fonts.packages = with pkgs; [
     jetbrains-mono
     nerd-fonts.jetbrains-mono
@@ -152,11 +136,15 @@
   users.users.paradox = {
     isNormalUser = true;
     description = "Paradox";
-    extraGroups = ["networkmanager" "wheel"];
+    extraGroups = ["networkmanager" "wheel" "bluetooth"];
   };
 
-  # Install firefox.
+  # Install firefox (latest from unstable).
   programs.firefox.enable = true;
+  programs.firefox.package = pkgsUnstable.firefox;
+
+  # Enable KDE Connect (native with KDE Plasma)
+  programs.kdeconnect.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -176,23 +164,23 @@
     # Kimi Code CLI - AI coding assistant
     kimi-cli.packages.${pkgs.system}.kimi-cli
 
-    # Hyprland system utilities
-    pkgsUnstable.hyprland
-    pkgsUnstable.hyprlock
-    pkgsUnstable.hypridle
-    # Note: xdg-desktop-portal packages are configured in xdg.portal.extraPortals
-    # Do not add them here to avoid duplicate service file conflicts
-    pkgsUnstable.grimblast
-    pkgsUnstable.wl-clipboard
-    pkgs.brightnessctl
-    pkgs.playerctl
-
     # Qt platform plugins for Wayland
     pkgs.qt5.qtwayland
     pkgs.qt6.qtwayland
 
+    # KDE System Packages
+    pkgs.kdePackages.kcalc
+    pkgs.kdePackages.gwenview
+    pkgs.kdePackages.okular
+    pkgs.kdePackages.kcharselect
+    pkgs.kdePackages.ark
+    pkgs.kdePackages.kio-fuse
+    pkgs.kdePackages.kio-extras
+    pkgs.kdePackages.bluedevil
+    pkgs.bluez
+
     # Authentication agent (polkit)
-    pkgs.polkit_gnome
+    pkgs.kdePackages.polkit-kde-agent-1
   ];
 
   nix.settings.extra-experimental-features = ["nix-command" "flakes"];

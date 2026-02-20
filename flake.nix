@@ -54,6 +54,7 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = false;
+          home-manager.backupFileExtension = "backup-2026-02-20";
           home-manager.users.paradox = import ./home-manager/home.nix;
           home-manager.extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
         }
@@ -78,7 +79,7 @@
       nixos-config =
         (nixpkgs.lib.nixosSystem {
           inherit system;
-          specialArgs = {inherit inputs pkgsUnstable;};
+          specialArgs = {inherit inputs pkgsUnstable kimi-cli;};
           modules = [
             ./hosts/lenovonix/configuration.nix
           ];
