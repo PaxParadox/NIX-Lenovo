@@ -2,12 +2,13 @@
 #
 # Git configuration and settings.
 # Can be toggled on/off.
-
-{ config, pkgs, lib, ... }:
-
-with lib;
-
-let
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with lib; let
   cfg = config.myModules.git;
 in {
   options.myModules.git = {
@@ -17,7 +18,7 @@ in {
   config = mkIf cfg.enable {
     programs.git = {
       enable = true;
-      
+
       settings = {
         user.name = "Paradox";
         user.email = "paradox.main@protonmail.com";

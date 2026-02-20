@@ -2,14 +2,16 @@
 #
 # Web browser configurations with selectable default.
 # Supports: zen-browser, firefox, chromium, brave, vivaldi
-
-{ config, pkgs, inputs, lib, ... }:
-
-with lib;
-
-let
+{
+  config,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}:
+with lib; let
   cfg = config.myModules.browsers;
-  browserOptions = [ "zen" "firefox" "chromium" "brave" "vivaldi" "none" ];
+  browserOptions = ["zen" "firefox" "chromium" "brave" "vivaldi" "none"];
 in {
   options.myModules.browsers = {
     enable = mkEnableOption "web browsers";
@@ -21,23 +23,23 @@ in {
     };
 
     zen = {
-      enable = mkEnableOption "Zen browser" // { default = true; };
+      enable = mkEnableOption "Zen browser" // {default = true;};
     };
 
     firefox = {
-      enable = mkEnableOption "Firefox" // { default = true; };
+      enable = mkEnableOption "Firefox" // {default = true;};
     };
 
     chromium = {
-      enable = mkEnableOption "Chromium" // { default = false; };
+      enable = mkEnableOption "Chromium" // {default = false;};
     };
 
     brave = {
-      enable = mkEnableOption "Brave" // { default = false; };
+      enable = mkEnableOption "Brave" // {default = false;};
     };
 
     vivaldi = {
-      enable = mkEnableOption "Vivaldi" // { default = false; };
+      enable = mkEnableOption "Vivaldi" // {default = false;};
     };
   };
 
@@ -64,13 +66,16 @@ in {
     xdg.mimeApps = mkIf (cfg.defaultBrowser != "none") {
       enable = true;
       defaultApplications = let
-        browserDesktop = {
-          "zen" = "zen-beta.desktop";
-          "firefox" = "firefox.desktop";
-          "chromium" = "chromium-browser.desktop";
-          "brave" = "brave-browser.desktop";
-          "vivaldi" = "vivaldi-stable.desktop";
-        }.${cfg.defaultBrowser};
+        browserDesktop =
+          {
+            "zen" = "zen-beta.desktop";
+            "firefox" = "firefox.desktop";
+            "chromium" = "chromium-browser.desktop";
+            "brave" = "brave-browser.desktop";
+            "vivaldi" = "vivaldi-stable.desktop";
+          }.${
+            cfg.defaultBrowser
+          };
       in {
         "text/html" = browserDesktop;
         "x-scheme-handler/http" = browserDesktop;
@@ -82,13 +87,16 @@ in {
 
     # Set BROWSER environment variable
     home.sessionVariables = mkIf (cfg.defaultBrowser != "none") {
-      BROWSER = {
-        "zen" = "zen";
-        "firefox" = "firefox";
-        "chromium" = "chromium";
-        "brave" = "brave";
-        "vivaldi" = "vivaldi";
-      }.${cfg.defaultBrowser};
+      BROWSER =
+        {
+          "zen" = "zen";
+          "firefox" = "firefox";
+          "chromium" = "chromium";
+          "brave" = "brave";
+          "vivaldi" = "vivaldi";
+        }.${
+          cfg.defaultBrowser
+        };
     };
   };
 }

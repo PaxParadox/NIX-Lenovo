@@ -2,19 +2,20 @@
 #
 # Shell configurations (bash, fish) and shared aliases.
 # Can be toggled on/off and customized per host.
-
-{ config, pkgs, lib, ... }:
-
-with lib;
-
-let
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with lib; let
   cfg = config.myModules.shells;
 in {
   options.myModules.shells = {
     enable = mkEnableOption "shell configurations (bash, fish, aliases)";
-    
+
     defaultShell = mkOption {
-      type = types.enum [ "bash" "fish" "none" ];
+      type = types.enum ["bash" "fish" "none"];
       default = "bash";
       description = "Which shell to set as the default login shell";
     };
@@ -44,8 +45,9 @@ in {
 
     # Set default shell if specified
     home.sessionVariables = mkIf (cfg.defaultShell != "none") {
-      SHELL = 
-        if cfg.defaultShell == "fish" then "${pkgs.fish}/bin/fish"
+      SHELL =
+        if cfg.defaultShell == "fish"
+        then "${pkgs.fish}/bin/fish"
         else "${pkgs.bash}/bin/bash";
     };
   };

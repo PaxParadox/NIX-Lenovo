@@ -3,10 +3,14 @@
 # Essential packages and base home configuration.
 # This module is always enabled and provides the foundation
 # for all other modules.
-
-{ config, pkgs, pkgsUnstable, pkgsMaster, lib, ... }:
-
 {
+  config,
+  pkgs,
+  pkgsUnstable,
+  pkgsMaster,
+  lib,
+  ...
+}: {
   # Basic home settings
   home.username = "paradox";
   home.homeDirectory = "/home/paradox";
@@ -21,16 +25,18 @@
     eza
     bat
     wget
-    
+
     # System tools
     git
     tmux
     mediawriter
-    
+
+    # Qt styling for mediawriter
+
     # Shells
     bash
     fish
-    
+
     # Editors from different channels
     pkgsUnstable.zed-editor
     pkgsMaster.opencode
@@ -41,4 +47,9 @@
 
   # Enable home-manager to manage itself
   programs.home-manager.enable = true;
+
+  # Qt application styling (for mediawriter and other Qt apps)
+  home.sessionVariables = {
+    QT_STYLE_OVERRIDE = "kvantum";
+  };
 }
