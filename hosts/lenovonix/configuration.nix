@@ -221,6 +221,7 @@
     pkgs.kdePackages.kio-fuse
     pkgs.kdePackages.kio-extras
     pkgs.kdePackages.bluedevil
+    pkgs.kdePackages.krfb # KDE Remote Desktop for screen sharing with KDE Connect
     pkgs.bluez
 
     # Authentication agent (polkit)
@@ -287,7 +288,7 @@
   # Firewall configuration for Tailscale exit node functionality
   networking.firewall = {
     checkReversePath = "loose";
-    allowedUDPPorts = [ 41641 ];
+    allowedUDPPorts = [41641];
   };
 
   # This value determines the NixOS release from which the default
@@ -302,8 +303,8 @@
   # This fixes the internet connectivity issue after closing and opening the laptop lid
   systemd.services.tailscale-resume = {
     description = "Restart Tailscale after resume";
-    wantedBy = [ "suspend.target" "hibernate.target" ];
-    after = [ "suspend.target" "hibernate.target" ];
+    wantedBy = ["suspend.target" "hibernate.target"];
+    after = ["suspend.target" "hibernate.target"];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${pkgs.tailscale}/bin/tailscale down && ${pkgs.tailscale}/bin/tailscale up";
