@@ -31,6 +31,10 @@
     tmux
     mediawriter
 
+    # VPN tools
+    tailscale
+    ktailctl
+
     # Qt styling for mediawriter
 
     # Shells
@@ -52,4 +56,5 @@
   home.sessionVariables = {
     QT_STYLE_OVERRIDE = "kvantum";
   };
+
 }

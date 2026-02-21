@@ -7,6 +7,7 @@
   pkgsUnstable,
   inputs,
   kimi-cli,
+  lib,
   ...
 }: {
   imports = [
@@ -95,6 +96,25 @@
   # Enable touchpad support for laptop
   services.libinput.enable = true;
 
+  # Enable fingerprint reader service with Goodix 550a driver
+  services.fprintd = {
+    enable = true;
+    # Use fprintd-tod which supports TOD (Touch OEM Driver) backends
+    package = pkgs.fprintd-tod;
+    tod = {
+      enable = true;
+      driver = pkgs.libfprint-2-tod1-goodix-550a;
+    };
+  };
+
+  # Configure PAM for fingerprint authentication
+  # Allows fingerprint OR password for login, sudo, and lock screen
+  security.pam.services.sddm.fprintAuth = true;
+  security.pam.services.login.fprintAuth = true;
+  security.pam.services.sudo.fprintAuth = true;
+  # Force override KDE's default (which disables fingerprint)
+  security.pam.services.kde.fprintAuth = lib.mkForce true;
+
   # XDG Desktop Portal configuration
   # KDE Plasma provides its own portal (xdg-desktop-portal-kde)
   xdg.portal = {
@@ -126,6 +146,9 @@
   # Enable dbus for notifications and other services
   services.dbus.enable = true;
 
+  # Enable Flatpak for sandboxed app distribution
+  services.flatpak.enable = true;
+
   # Fonts (Nerd Fonts for terminal icons)
   fonts.packages = with pkgs; [
     jetbrains-mono
@@ -148,6 +171,11 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+
+  # Allow insecure packages (ventoy)
+  nixpkgs.config.permittedInsecurePackages = [
+    "ventoy-1.1.07"
+  ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -181,6 +209,15 @@
 
     # Authentication agent (polkit)
     pkgs.kdePackages.polkit-kde-agent-1
+
+    # Flatpak CLI tools
+    pkgs.flatpak
+
+    # Ventoy - bootable USB creator (GUI: VentoyGUI)
+    pkgs.ventoy
+
+    # GNOME Disks utility for drive formatting
+    pkgs.gnome-disk-utility
   ];
 
   nix.settings.extra-experimental-features = ["nix-command" "flakes"];
@@ -218,6 +255,9 @@
 
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
+
+  # Enable Tailscale VPN.
+  services.tailscale.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
