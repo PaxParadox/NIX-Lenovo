@@ -56,5 +56,4 @@
   home.sessionVariables = {
     QT_STYLE_OVERRIDE = "kvantum";
   };
-
 }
