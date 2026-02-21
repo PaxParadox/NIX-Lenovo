@@ -16,11 +16,9 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # Add media packages here when ready
-    # home.packages = with pkgs; [
-    #   mpv
-    #   vlc
-    #   spotify
-    # ];
+    home.packages = with pkgs; [
+      qbittorrent
+      tidal-hifi
+    ];
   };
 }

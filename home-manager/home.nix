@@ -66,9 +66,9 @@ in {
       };
     };
 
-    # Future modules (currently disabled)
+    # Media applications
     media = {
-      enable = false;
+      enable = true;
     };
 
     # Browser configuration
