@@ -35,6 +35,9 @@
     tailscale
     ktailctl
 
+    # Remote access / game streaming
+    moonlight-qt
+
     # Qt styling for mediawriter
 
     # Shells

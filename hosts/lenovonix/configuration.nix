@@ -36,6 +36,16 @@
   hardware.bluetooth.enable = true;
   networking.networkmanager.enable = true;
 
+  # Intel integrated graphics (Iris Xe) configuration
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+    extraPackages = with pkgs; [
+      intel-media-driver      # Main VA-API driver for Intel
+      libvdpau-va-gl          # VDPAU wrapper for VA-API
+    ];
+  };
+
   # Power management for lid/suspend handling
   services.logind = {
     lidSwitch = "suspend";

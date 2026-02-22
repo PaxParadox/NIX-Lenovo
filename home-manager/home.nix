@@ -64,6 +64,12 @@ in {
       ghostty = {
         fontSize = 11;
       };
+
+      alacritty = {
+        enable = true;
+        fontSize = 11;
+        theme = "tokyo-night-dark";
+      };
     };
 
     # Media applications
