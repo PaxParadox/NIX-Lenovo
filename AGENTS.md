@@ -12,9 +12,20 @@ NixOS flake configuration for Lenovo E14 Gen 5 laptop (hostname: `lenovonix`). U
 This configuration uses three nixpkgs channels simultaneously:
 - **nixpkgs (25.11)**: Stable packages for system configuration
 - **nixpkgs-unstable**: Newer packages with binary cache (gaming tools, editors)
-- **nixpkgs-master**: Latest versions, may build from source (Warp, Cursor, etc.)
+- **nixpkgs-master**: Latest versions, may build from source (VSCodium, opencode, etc.)
 
 Access via `pkgs`, `pkgsUnstable`, and `pkgsMaster` in configuration files through `specialArgs` and `extraSpecialArgs`.
+
+**Important**: These are separate package sets, NOT overlays. This prevents dependency conflicts between channels. Use them like:
+```nix
+{ pkgs, pkgsUnstable, pkgsMaster, ... }: {
+  home.packages = [
+    pkgsUnstable.zed-editor
+    pkgsMaster.vscodium
+    pkgs.git
+  ];
+}
+```
 
 ### Repository Structure
 - `flake.nix`: Entry point, defines nixosConfigurations and homeConfigurations
@@ -146,6 +157,7 @@ For unit testing of Nix expressions, consider using `nix-test` or `runCommand` c
 
 ### Module System
 - Use `lib.mkIf`, `lib.mkDefault`, `lib.mkForce` appropriately; define options with `lib.options.mkOption`.
+- **NEVER use `with lib;` at the top level** - it causes scoping issues and makes grep/search impossible. Use explicit `lib.` prefixes instead.
 
 ### Package Management
 - Prefer program modules (`programs.git.enable = true`) over manual package installation.
