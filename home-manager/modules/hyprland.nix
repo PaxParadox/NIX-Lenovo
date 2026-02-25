@@ -476,6 +476,10 @@ in {
       gtk4.extraConfig = {
         gtk-application-prefer-dark-theme = true;
       };
+      # Link theme for GTK4 apps (Nautilus, etc.)
+      gtk4.extraCss = ''
+        @import url("${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk.css");
+      '';
     };
 
     # Ensure dark theme is used for GTK apps
@@ -485,6 +489,10 @@ in {
         gtk-theme = "adw-gtk3-dark";
         icon-theme = "Papirus-Dark";
         cursor-theme = "Bibata-Modern-Classic";
+      };
+      # Nautilus specific settings
+      "org/gnome/nautilus/preferences" = {
+        use-experimental-views = false;
       };
     };
 
