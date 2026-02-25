@@ -464,7 +464,7 @@ in {
     gtk = {
       enable = true;
       theme = {
-        name = "adw-gtk3-dark";
+        name = "adw-gtk3";
         package = pkgs.adw-gtk3;
       };
       iconTheme = {
@@ -485,7 +485,7 @@ in {
     dconf.settings = {
       "org/gnome/desktop/interface" = {
         color-scheme = "prefer-dark";
-        gtk-theme = "adw-gtk3-dark";
+        gtk-theme = "adw-gtk3";
         icon-theme = "Papirus-Dark";
         cursor-theme = "Bibata-Modern-Classic";
       };
@@ -497,18 +497,20 @@ in {
 
     # Environment variables for theming
     home.sessionVariables = {
-      GTK_THEME = "adw-gtk3-dark";
+      GTK_THEME = "adw-gtk3";
     };
 
     # Link adw-gtk3 theme to ~/.config/gtk-4.0 for libadwaita apps
-    home.file.".config/gtk-4.0/gtk.css".source =
-      "${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk.css";
+    home.file.".config/gtk-4.0/gtk.css".text = ''
+      /* Force dark theme variant */
+      @import url("${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk.css");
+    '';
     home.file.".config/gtk-4.0/gtk-dark.css".source =
       "${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk-dark.css";
-    home.file.".config/assets".source =
-      "${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/assets";
     
     # Also link to ~/.themes for compatibility
+    home.file.".themes/adw-gtk3".source =
+      "${pkgs.adw-gtk3}/share/themes/adw-gtk3";
     home.file.".themes/adw-gtk3-dark".source =
       "${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark";
 
