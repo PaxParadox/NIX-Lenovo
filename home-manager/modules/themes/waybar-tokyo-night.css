@@ -1,0 +1,57 @@
+/* Tokyo Night Waybar Theme */
+* {
+  font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free";
+  font-size: 13px;
+  min-height: 0;
+}
+
+window#waybar {
+  background-color: #1a1b26;
+  color: #c0caf5;
+  border-bottom: 2px solid #292e42;
+}
+
+#workspaces button {
+  padding: 0 10px;
+  color: #a9b1d6;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+#workspaces button:hover {
+  background-color: #292e42;
+}
+
+#workspaces button.active {
+  background-color: #7aa2f7;
+  color: #1a1b26;
+}
+
+#workspaces button.urgent {
+  background-color: #f7768e;
+  color: #1a1b26;
+}
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#network,
+#pulseaudio,
+#tray {
+  padding: 0 10px;
+  color: #c0caf5;
+}
+
+#battery.critical {
+  color: #f7768e;
+}
+
+#battery.warning {
+  color: #e0af68;
+}
+
+#network.disconnected {
+  color: #f7768e;
+}

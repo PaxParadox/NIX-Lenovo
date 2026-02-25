@@ -1,0 +1,87 @@
+/* Tokyo Night Rofi Theme */
+* {
+  bg: #1a1b26;
+  bg-alt: #16161e;
+  fg: #c0caf5;
+  fg-alt: #a9b1d6;
+  blue: #7aa2f7;
+  red: #f7768e;
+  green: #9ece6a;
+  yellow: #e0af68;
+  magenta: #bb9af7;
+  cyan: #7dcfff;
+
+  background-color: @bg;
+  text-color: @fg;
+}
+
+window {
+  width: 600;
+  border-radius: 10;
+  background-color: @bg;
+  border: 2px solid;
+  border-color: @blue;
+  padding: 20;
+}
+
+mainbox {
+  background-color: transparent;
+  children: [inputbar, listview];
+  spacing: 15;
+}
+
+inputbar {
+  background-color: @bg-alt;
+  border-radius: 5;
+  padding: 10;
+  children: [prompt, entry];
+}
+
+prompt {
+  background-color: transparent;
+  text-color: @blue;
+  padding: 0 10 0 0;
+}
+
+entry {
+  background-color: transparent;
+  text-color: @fg;
+  placeholder: "Search...";
+  placeholder-color: @fg-alt;
+}
+
+listview {
+  background-color: transparent;
+  columns: 1;
+  lines: 8;
+  spacing: 5;
+  fixed-height: false;
+  dynamic: true;
+}
+
+element {
+  background-color: transparent;
+  padding: 10;
+  border-radius: 5;
+}
+
+element normal.normal {
+  background-color: transparent;
+  text-color: @fg;
+}
+
+element selected.normal {
+  background-color: @blue;
+  text-color: @bg;
+}
+
+element-icon {
+  background-color: transparent;
+  size: 24;
+  margin: 0 10 0 0;
+}
+
+element-text {
+  background-color: transparent;
+  text-color: inherit;
+}
