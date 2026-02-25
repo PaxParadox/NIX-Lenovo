@@ -1,6 +1,7 @@
 # Hardware configuration for pcnix
-# GENERATE THIS FILE with: sudo nixos-generate-config --dir /etc/nixos/hosts/pcnix
-# Then copy hardware-configuration.nix here
+# WARNING: This is a TEMPLATE file. You need to generate the real one:
+#   sudo nixos-generate-config --dir /etc/nixos/hosts/pcnix
+# Then copy hardware-configuration.nix here and commit.
 {
   config,
   lib,
@@ -17,7 +18,8 @@
   boot.kernelModules = ["kvm-amd" "kvm-intel"];
   boot.extraModulePackages = [];
 
-  # NOTE: Replace these with your actual disk UUIDs
+  # WARNING: REPLACE THESE WITH YOUR ACTUAL DISK UUIDs
+  # Run: lsblk -f  to find your UUIDs
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/REPLACE-ME";
     fsType = "ext4";
