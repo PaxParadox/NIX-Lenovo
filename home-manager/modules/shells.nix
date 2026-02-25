@@ -8,20 +8,20 @@
   lib,
   ...
 }:
-with lib; let
+let
   cfg = config.myModules.shells;
 in {
   options.myModules.shells = {
-    enable = mkEnableOption "shell configurations (bash, fish, aliases)";
+    enable = lib.mkEnableOption "shell configurations (bash, fish, aliases)";
 
-    defaultShell = mkOption {
-      type = types.enum ["bash" "fish" "none"];
+    defaultShell = lib.mkOption {
+      type = lib.types.enum ["bash" "fish" "none"];
       default = "bash";
       description = "Which shell to set as the default login shell";
     };
   };
 
-  config = mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
     # Shared shell aliases for all shells
     home.shellAliases = {
       ll = "eza -la";
@@ -44,7 +44,7 @@ in {
     };
 
     # Set default shell if specified
-    home.sessionVariables = mkIf (cfg.defaultShell != "none") {
+    home.sessionVariables = lib.mkIf (cfg.defaultShell != "none") {
       SHELL =
         if cfg.defaultShell == "fish"
         then "${pkgs.fish}/bin/fish"

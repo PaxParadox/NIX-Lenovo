@@ -8,14 +8,14 @@
   lib,
   ...
 }:
-with lib; let
+let
   cfg = config.myModules.git;
 in {
   options.myModules.git = {
-    enable = mkEnableOption "git configuration";
+    enable = lib.mkEnableOption "git configuration";
   };
 
-  config = mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
     programs.git = {
       enable = true;
 

@@ -6,42 +6,42 @@
   lib,
   ...
 }:
-with lib; let
+let
   cfg = config.myModules.terminal;
 in {
   options.myModules.terminal = {
-    enable = mkEnableOption "terminal configurations (tmux, kitty, alacritty)";
+    enable = lib.mkEnableOption "terminal configurations (tmux, kitty, alacritty)";
 
     kitty = {
-      enable = mkOption {
-        type = types.bool;
+      enable = lib.mkOption {
+        type = lib.types.bool;
         default = true;
         description = "Enable Kitty terminal";
       };
 
-      fontSize = mkOption {
-        type = types.int;
+      fontSize = lib.mkOption {
+        type = lib.types.int;
         default = 11;
         description = "Kitty terminal font size";
       };
     };
 
     alacritty = {
-      enable = mkOption {
-        type = types.bool;
+      enable = lib.mkOption {
+        type = lib.types.bool;
         default = false;
         description = "Enable Alacritty terminal";
       };
 
-      fontSize = mkOption {
-        type = types.int;
+      fontSize = lib.mkOption {
+        type = lib.types.int;
         default = 11;
         description = "Alacritty terminal font size";
       };
     };
   };
 
-  config = mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
     # Tmux configuration
     programs.tmux = {
       enable = true;
@@ -54,7 +54,7 @@ in {
     };
 
     # Kitty terminal (from unstable via overlay if needed)
-    programs.kitty = mkIf cfg.kitty.enable {
+    programs.kitty = lib.mkIf cfg.kitty.enable {
       enable = true;
       settings = {
         font_size = cfg.kitty.fontSize;
@@ -120,7 +120,7 @@ in {
     };
 
     # Alacritty terminal
-    programs.alacritty = mkIf cfg.alacritty.enable {
+    programs.alacritty = lib.mkIf cfg.alacritty.enable {
       enable = true;
 
       settings = {

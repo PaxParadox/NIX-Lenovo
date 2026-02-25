@@ -6,43 +6,43 @@
   lib,
   ...
 }:
-with lib; let
+let
   cfg = config.myModules.browsers;
 in {
   options.myModules.browsers = {
-    enable = mkEnableOption "web browsers";
+    enable = lib.mkEnableOption "web browsers";
 
-    defaultBrowser = mkOption {
-      type = types.enum ["zen" "brave"];
+    defaultBrowser = lib.mkOption {
+      type = lib.types.enum ["zen" "brave"];
       default = "zen";
       description = "Which browser to set as the system default";
     };
 
     zen = {
-      enable = mkOption {
-        type = types.bool;
+      enable = lib.mkOption {
+        type = lib.types.bool;
         default = true;
         description = "Enable Zen browser";
       };
     };
 
     brave = {
-      enable = mkOption {
-        type = types.bool;
+      enable = lib.mkOption {
+        type = lib.types.bool;
         default = true;
         description = "Enable Brave browser";
       };
     };
   };
 
-  config = mkIf cfg.enable {
-    home.packages = mkMerge [
-      (mkIf cfg.zen.enable [pkgs.zen-browser])
-      (mkIf cfg.brave.enable [pkgs.brave])
+  config = lib.mkIf cfg.enable {
+    home.packages = lib.mkMerge [
+      (lib.mkIf cfg.zen.enable [pkgs.zen-browser])
+      (lib.mkIf cfg.brave.enable [pkgs.brave])
     ];
 
     # Set default browser
-    xdg.mimeApps = mkIf (cfg.defaultBrowser != "none") {
+    xdg.mimeApps = lib.mkIf (cfg.defaultBrowser != "none") {
       enable = true;
       defaultApplications = let
         browserDesktop =
@@ -63,7 +63,7 @@ in {
     };
 
     # Set BROWSER environment variable
-    home.sessionVariables = mkIf (cfg.defaultBrowser != "none") {
+    home.sessionVariables = lib.mkIf (cfg.defaultBrowser != "none") {
       BROWSER =
         {
           "zen" = "zen";

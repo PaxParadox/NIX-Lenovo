@@ -6,7 +6,7 @@
   lib,
   ...
 }:
-with lib; let
+let
   cfg = config.myModules.hyprland;
 
   # Tokyo Night colors
@@ -30,16 +30,16 @@ with lib; let
   };
 in {
   options.myModules.hyprland = {
-    enable = mkEnableOption "Hyprland window manager";
+    enable = lib.mkEnableOption "Hyprland window manager";
 
-    modKey = mkOption {
-      type = types.enum ["SUPER" "ALT"];
+    modKey = lib.mkOption {
+      type = lib.types.enum ["SUPER" "ALT"];
       default = "SUPER";
       description = "Modifier key for Hyprland keybindings (SUPER or ALT)";
     };
   };
 
-  config = mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
     # Hyprland configuration
     wayland.windowManager.hyprland = {
       enable = true;
