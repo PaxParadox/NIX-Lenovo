@@ -15,6 +15,7 @@
     ./modules/terminal.nix
     ./modules/browsers.nix
     ./modules/hyprland.nix
+    ./modules/waybar.nix
   ];
 
   # Module configuration
@@ -37,6 +38,10 @@
 
     hyprland.enable = true;
     hyprland.modKey = "SUPER";
+
+    waybar.enable = true;
+    waybar.position = "top";
+    waybar.height = 44;
   };
 
   # Home configuration - defined ONLY here, not in modules
