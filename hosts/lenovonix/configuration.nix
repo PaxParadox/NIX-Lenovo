@@ -1,131 +1,45 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
+# Lenovo E14 Gen 5 laptop configuration
 {
   config,
   pkgs,
-  pkgsUnstable,
   inputs,
-  kimi-cli,
   lib,
   ...
 }: {
   imports = [
-    # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    # Import sops-nix module for secrets management
+    ../common/base.nix
+    ../common/hyprland.nix
     inputs.sops-nix.nixosModules.sops
   ];
 
-  # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  networking.hostName = "lenovonix";
 
-  # Use latest kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # Allow insecure packages (ventoy)
+  nixpkgs.config.permittedInsecurePackages = [
+    "ventoy-1.1.07"
+  ];
 
-  networking.hostName = "lenovonix"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Enable networking
-  # Enable Bluetooth
-  hardware.bluetooth.enable = true;
-  networking.networkmanager.enable = true;
-
-  # Intel integrated graphics (Iris Xe) configuration
+  # Intel integrated graphics (Iris Xe)
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
     extraPackages = with pkgs; [
-      intel-media-driver      # Main VA-API driver for Intel
-      libvdpau-va-gl          # VDPAU wrapper for VA-API
+      intel-media-driver
+      libvdpau-va-gl
     ];
   };
 
-  # Power management for lid/suspend handling
-  services.logind = {
-    lidSwitch = "suspend";
-    lidSwitchExternalPower = "suspend";
-    lidSwitchDocked = "suspend";
+  # Power management for lid/suspend
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchExternalPower = "suspend";
+    HandleLidSwitchDocked = "suspend";
   };
 
-  # Set your time zone.
-  time.timeZone = "Europe/Berlin";
-
-  # DNS resolution service for better DNS management
-  services.resolved.enable = true;
-
-  # IP forwarding required for Tailscale exit node functionality
-  boot.kernel.sysctl = {
-    "net.ipv4.ip_forward" = 1;
-    "net.ipv6.conf.all.forwarding" = 1;
-  };
-
-  # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
-
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "de_DE.UTF-8";
-    LC_IDENTIFICATION = "de_DE.UTF-8";
-    LC_MEASUREMENT = "de_DE.UTF-8";
-    LC_MONETARY = "de_DE.UTF-8";
-    LC_NAME = "de_DE.UTF-8";
-    LC_NUMERIC = "de_DE.UTF-8";
-    LC_PAPER = "de_DE.UTF-8";
-    LC_TELEPHONE = "de_DE.UTF-8";
-    LC_TIME = "de_DE.UTF-8";
-  };
-
-  # Enable the X11 windowing system (needed for XWayland).
-  services.xserver.enable = true;
-
-  # Display Manager: SDDM for KDE Plasma
-  services.displayManager.sddm = {
-    enable = true;
-    wayland.enable = true;
-  };
-
-  # Desktop Environment: KDE Plasma 6
-  services.desktopManager.plasma6 = {
-    enable = true;
-  };
-
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
-
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
-
-  # Enable sound with pipewire.
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
-  };
-
-  # Enable touchpad support for laptop
-  services.libinput.enable = true;
-
-  # Enable fingerprint reader service with Goodix 550a driver
+  # Fingerprint reader (Goodix 550a)
   services.fprintd = {
     enable = true;
-    # Use fprintd-tod which supports TOD (Touch OEM Driver) backends
     package = pkgs.fprintd-tod;
     tod = {
       enable = true;
@@ -133,216 +47,22 @@
     };
   };
 
-  # Configure PAM for fingerprint authentication
-  # Allows fingerprint OR password for login, sudo, and lock screen
+  # PAM fingerprint authentication
   security.pam.services.sddm.fprintAuth = true;
   security.pam.services.login.fprintAuth = true;
   security.pam.services.sudo.fprintAuth = true;
-  # Force override KDE's default (which disables fingerprint)
-  security.pam.services.kde.fprintAuth = lib.mkForce true;
+  security.pam.services.hyprlock.fprintAuth = lib.mkForce true;
 
-  # XDG Desktop Portal configuration
-  # KDE Plasma provides its own portal (xdg-desktop-portal-kde)
-  xdg.portal = {
-    enable = true;
-    extraPortals = [
-      pkgs.xdg-desktop-portal-gtk
-    ];
-    # Plasma portal is automatically added when plasma6 is enabled
-  };
-
-  # Polkit authentication agent (for GUI elevation requests)
-  security.polkit.enable = true;
-  systemd = {
-    user.services.polkit-kde-authentication-agent-1 = {
-      description = "polkit-kde-authentication-agent-1";
-      wantedBy = ["graphical-session.target"];
-      wants = ["graphical-session.target"];
-      after = ["graphical-session.target"];
-      serviceConfig = {
-        Type = "simple";
-        ExecStart = "${pkgs.kdePackages.polkit-kde-agent-1}/libexec/polkit-kde-agent-1";
-        Restart = "on-failure";
-        RestartSec = 1;
-        TimeoutStopSec = 10;
-      };
-    };
-  };
-
-  # Enable dbus for notifications and other services
-  services.dbus.enable = true;
-
-  # Enable Flatpak for sandboxed app distribution
-  services.flatpak.enable = true;
-
-  # Fonts (Nerd Fonts for terminal icons)
-  fonts.packages = with pkgs; [
-    jetbrains-mono
-    nerd-fonts.jetbrains-mono
+  # System packages (laptop-specific)
+  environment.systemPackages = with pkgs; [
+    bitwarden-desktop
+    ventoy
+    gnome-disk-utility
   ];
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.paradox = {
-    isNormalUser = true;
-    description = "Paradox";
-    extraGroups = ["networkmanager" "wheel" "bluetooth"];
-  };
-
-  # Install firefox (latest from unstable).
-  programs.firefox.enable = true;
-  programs.firefox.package = pkgsUnstable.firefox;
-
-  # Enable KDE Connect (native with KDE Plasma)
-  programs.kdeconnect.enable = true;
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-
-  # Allow insecure packages (ventoy)
-  nixpkgs.config.permittedInsecurePackages = [
-    "ventoy-1.1.07"
-  ];
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = [
-    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    pkgs.wget
-    pkgs.bitwarden-desktop
-    # Home Manager CLI tool
-    pkgs.home-manager
-    # Gaming packages from unstable (better cache, newer versions)
-    pkgsUnstable.protonplus
-    pkgsUnstable.bottles
-    pkgsUnstable.mangohud
-    # Kimi Code CLI - AI coding assistant
-    kimi-cli.packages.${pkgs.system}.kimi-cli
-
-    # Qt platform plugins for Wayland
-    pkgs.qt5.qtwayland
-    pkgs.qt6.qtwayland
-
-    # KDE System Packages
-    pkgs.kdePackages.kcalc
-    pkgs.kdePackages.gwenview
-    pkgs.kdePackages.okular
-    pkgs.kdePackages.kcharselect
-    pkgs.kdePackages.ark
-    pkgs.kdePackages.kio-fuse
-    pkgs.kdePackages.kio-extras
-    pkgs.kdePackages.bluedevil
-    pkgs.kdePackages.krfb # KDE Remote Desktop for screen sharing with KDE Connect
-    pkgs.bluez
-
-    # Authentication agent (polkit)
-    pkgs.kdePackages.polkit-kde-agent-1
-
-    # Flatpak CLI tools
-    pkgs.flatpak
-
-    # Ventoy - bootable USB creator (GUI: VentoyGUI)
-    pkgs.ventoy
-
-    # GNOME Disks utility for drive formatting
-    pkgs.gnome-disk-utility
-  ];
-
-  nix.settings.extra-experimental-features = ["nix-command" "flakes"];
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  programs.gnupg.agent = {
-    enable = true;
-    enableSSHSupport = true;
-  };
-
-  # Gaming configuration
-  programs.steam = {
-    enable = true;
-    protontricks.enable = true;
-  };
-
-  programs.gamemode = {
-    enable = true;
-    enableRenice = true;
-    settings = {
-      general = {
-        renice = 10;
-      };
-    };
-  };
-
-  programs.gamescope = {
-    enable = true;
-    capSysNice = true;
-  };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Enable Tailscale VPN with exit node and DNS support.
-  services.tailscale = {
-    enable = true;
-    useRoutingFeatures = "server";
-    extraUpFlags = [
-      "--advertise-exit-node"
-      "--accept-routes"
-      "--accept-dns"
-      "--reset"
-    ];
-  };
-
-  # Firewall configuration for Tailscale exit node functionality
-  networking.firewall = {
-    checkReversePath = "loose";
-    allowedUDPPorts = [41641];
-  };
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It 's perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "25.11"; # Did you read the comment?
-
-  # Restart Tailscale after resume from suspend/hibernate
-  # This fixes the internet connectivity issue after closing and opening the laptop lid
-  systemd.services.tailscale-resume = {
-    description = "Restart Tailscale after resume";
-    wantedBy = ["suspend.target" "hibernate.target"];
-    after = ["suspend.target" "hibernate.target"];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.tailscale}/bin/tailscale down && ${pkgs.tailscale}/bin/tailscale up";
-      User = "root";
-    };
-  };
-
-  # SOPS secrets management configuration
-  # See secrets/README.md for setup instructions
+  # SOPS secrets
   sops = {
-    # Default age key location
     age.keyFile = "/home/paradox/.config/sops/age/keys.txt";
-
-    # Default secrets file
     defaultSopsFile = ../../secrets/secrets.yaml;
-
-    # Example secret (uncomment after setting up secrets.yaml):
-    # secrets.wifi-password = {
-    #   # Key path in secrets.yaml (e.g., wifi.home.password)
-    #   key = "wifi.home.password";
-    #   # Where to place the decrypted secret
-    #   path = "/run/secrets/wifi-password";
-    # };
-
-    # Example with template (for config files with embedded secrets):
-    # templates."my-app-config".content = ''
-    #   api_key = "${config.sops.placeholder.api-key}"
-    #   db_password = "${config.sops.placeholder.db-password}"
-    # '';
   };
 }
