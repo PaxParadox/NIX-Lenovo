@@ -36,10 +36,10 @@
     browsers.defaultBrowser = "zen";
 
     hyprland.enable = true;
-    hyprland.modKey = "SUPER";  # Change to "ALT" if you prefer
+    hyprland.modKey = "SUPER";
   };
 
-  # Home configuration
+  # Home configuration - defined ONLY here, not in modules
   home.username = "paradox";
   home.homeDirectory = "/home/paradox";
   home.stateVersion = "25.11";

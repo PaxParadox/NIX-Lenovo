@@ -3,21 +3,19 @@
 {
   config,
   pkgs,
+  pkgsMaster,
   lib,
   ...
 }:
-with lib; let
+let
   cfg = config.myModules.editors;
 in {
   options.myModules.editors = {
-    enable = mkEnableOption "editor configurations (zed, vscodium)";
+    enable = lib.mkEnableOption "editor configurations (zed, vscodium)";
   };
 
-  config = mkIf cfg.enable {
-    # Zed editor (from unstable via overlay)
-    home.packages = [pkgs.zed-editor];
-
-    # Zed settings
+  config = lib.mkIf cfg.enable {
+    # Zed editor settings
     home.file.".config/zed/settings.json".text = builtins.toJSON {
       theme = "Tokyo Night Dark";
       ui_font_size = 15;
@@ -111,10 +109,10 @@ in {
       }
     ];
 
-    # VSCodium (from master via overlay)
+    # VSCodium (from master via pkgsMaster)
     programs.vscode = {
       enable = true;
-      package = pkgs.vscodium;
+      package = pkgsMaster.vscodium;
 
       profiles.default = {
         extensions = with pkgs.vscode-extensions; [
@@ -181,13 +179,8 @@ in {
       };
     };
 
-    # Editor aliases
-    programs.bash.shellAliases = {
-      zed = "zeditor";
-      code = "codium";
-    };
-
-    programs.fish.shellAliases = {
+    # Editor aliases - defined here since they're editor-specific
+    home.shellAliases = {
       zed = "zeditor";
       code = "codium";
     };

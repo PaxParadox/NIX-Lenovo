@@ -3,14 +3,11 @@
 {
   config,
   pkgs,
+  pkgsUnstable,
+  pkgsMaster,
   lib,
   ...
 }: {
-  # Basic home settings
-  home.username = "paradox";
-  home.homeDirectory = "/home/paradox";
-  home.stateVersion = "25.11";
-
   # Essential packages for all setups
   home.packages = with pkgs; [
     # CLI utilities
@@ -37,9 +34,9 @@
     bash
     fish
 
-    # Editors (from overlays)
-    zed-editor
-    opencode
+    # Editors (from specific channels)
+    pkgsUnstable.zed-editor
+    pkgsMaster.opencode
     kimi-cli
 
     # Desktop apps
