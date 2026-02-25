@@ -124,7 +124,7 @@ in {
         "$terminal" = "kitty";
         "$fileManager" = "nautilus";
         "$menu" = "rofi -show drun";
-        "$browser" = "zen";
+        "$browser" = "zen-beta";
 
         bind = [
           # Basic binds
@@ -212,7 +212,7 @@ in {
           "mako"
           "waybar"
           "swww init"
-          "swww img ~/Pictures/wallpaper.png"
+          "swww img ~/NIX-Lenovo/wallpapers/Tokyo-Night.jpg"
         ];
       };
 
