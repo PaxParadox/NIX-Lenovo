@@ -26,41 +26,63 @@
   outputs = {
     self,
     nixpkgs,
+    nixpkgs-unstable,
+    nixpkgs-master,
     home-manager,
     sops-nix,
     kimi-cli,
     zen-browser,
     ...
-  } @ inputs: let
+  }: let
     system = "x86_64-linux";
 
-    # Overlays to pull specific packages from different channels
+    # Base nixpkgs configuration
+    pkgs = import nixpkgs {
+      inherit system;
+      config.allowUnfree = true;
+    };
+
+    # Unstable package set - for packages needing newer versions
+    pkgsUnstable = import nixpkgs-unstable {
+      inherit system;
+      config.allowUnfree = true;
+    };
+
+    # Master package set - for bleeding-edge packages
+    pkgsMaster = import nixpkgs-master {
+      inherit system;
+      config.allowUnfree = true;
+    };
+
+    # Overlay for flake-provided packages only
+    # These are packages NOT in nixpkgs, so no dependency conflicts
     overlays = [
       (final: prev: {
-        # From unstable
-        zed-editor = inputs.nixpkgs-unstable.legacyPackages.${system}.zed-editor;
-
-        # From master
-        vscodium = inputs.nixpkgs-master.legacyPackages.${system}.vscodium;
-        opencode = inputs.nixpkgs-master.legacyPackages.${system}.opencode;
-
-        # From flake inputs
-        kimi-cli = inputs.kimi-cli.packages.${system}.kimi-cli;
-        zen-browser = inputs.zen-browser.packages.${system}.default;
+        kimi-cli = kimi-cli.packages.${system}.kimi-cli;
+        zen-browser = zen-browser.packages.${system}.default;
       })
     ];
 
-    # Base nixpkgs configuration with overlays
-    pkgs = import nixpkgs {
+    # Apply overlay to base pkgs
+    pkgsWithOverlays = import nixpkgs {
       inherit system overlays;
       config.allowUnfree = true;
     };
 
+    # Construct inputs attrset for modules that need it (sops-nix, etc.)
+    inputs = {
+      inherit sops-nix;
+    };
+
     # Common special args for all configurations
-    specialArgs = {inherit inputs;};
+    specialArgs = {
+      inherit inputs pkgsUnstable pkgsMaster;
+    };
 
     # Common home-manager special args
-    extraSpecialArgs = {inherit inputs;};
+    extraSpecialArgs = {
+      inherit pkgsUnstable pkgsMaster;
+    };
 
     # Common home-manager module configuration
     homeManagerModule = {
@@ -95,7 +117,7 @@
 
     # Standalone home-manager configuration
     homeConfigurations.paradox = home-manager.lib.homeManagerConfiguration {
-      inherit pkgs;
+      pkgs = pkgsWithOverlays;
       modules = [./home-manager/home.nix];
       extraSpecialArgs = extraSpecialArgs;
     };
@@ -136,7 +158,7 @@
       # Verify home-manager configuration evaluates correctly
       home-config =
         (home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
+          pkgs = pkgsWithOverlays;
           modules = [./home-manager/home.nix];
           extraSpecialArgs = extraSpecialArgs;
         })
