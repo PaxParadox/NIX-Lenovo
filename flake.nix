@@ -1,5 +1,5 @@
 {
-  description = "NixOS configuration for Lenovo E14 Gen 5";
+  description = "NixOS configuration for Lenovo E14 Gen 5 and Desktop";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
@@ -27,47 +27,77 @@
     self,
     nixpkgs,
     home-manager,
+    sops-nix,
     kimi-cli,
     zen-browser,
     ...
   } @ inputs: let
     system = "x86_64-linux";
+
+    # Overlays to pull specific packages from different channels
+    overlays = [
+      (final: prev: {
+        # From unstable
+        zed-editor = inputs.nixpkgs-unstable.legacyPackages.${system}.zed-editor;
+
+        # From master
+        vscodium = inputs.nixpkgs-master.legacyPackages.${system}.vscodium;
+        opencode = inputs.nixpkgs-master.legacyPackages.${system}.opencode;
+
+        # From flake inputs
+        kimi-cli = inputs.kimi-cli.packages.${system}.kimi-cli;
+        zen-browser = inputs.zen-browser.packages.${system}.default;
+      })
+    ];
+
+    # Base nixpkgs configuration with overlays
     pkgs = import nixpkgs {
-      inherit system;
+      inherit system overlays;
       config.allowUnfree = true;
     };
-    pkgsUnstable = import inputs.nixpkgs-unstable {
-      inherit system;
-      config.allowUnfree = true;
-    };
-    pkgsMaster = import inputs.nixpkgs-master {
-      inherit system;
-      config.allowUnfree = true;
+
+    # Common special args for all configurations
+    specialArgs = {inherit inputs;};
+
+    # Common home-manager special args
+    extraSpecialArgs = {inherit inputs;};
+
+    # Common home-manager module configuration
+    homeManagerModule = {
+      home-manager.useGlobalPkgs = true;
+      home-manager.useUserPackages = true;
+      home-manager.backupFileExtension = "backup";
+      home-manager.users.paradox = import ./home-manager/home.nix;
+      home-manager.extraSpecialArgs = extraSpecialArgs;
     };
   in {
+    # Laptop configuration (lenovonix)
     nixosConfigurations.lenovonix = nixpkgs.lib.nixosSystem {
-      inherit system;
-      specialArgs = {inherit inputs pkgsUnstable kimi-cli;};
+      inherit system specialArgs;
       modules = [
+        {nixpkgs.overlays = overlays;}
         ./hosts/lenovonix/configuration.nix
         home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = false;
-          home-manager.backupFileExtension = "backup-2026-02-20";
-          home-manager.users.paradox = import ./home-manager/home.nix;
-          home-manager.extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
-        }
+        homeManagerModule
       ];
     };
 
+    # Desktop configuration (pcnix)
+    nixosConfigurations.pcnix = nixpkgs.lib.nixosSystem {
+      inherit system specialArgs;
+      modules = [
+        {nixpkgs.overlays = overlays;}
+        ./hosts/pcnix/configuration.nix
+        home-manager.nixosModules.home-manager
+        homeManagerModule
+      ];
+    };
+
+    # Standalone home-manager configuration
     homeConfigurations.paradox = home-manager.lib.homeManagerConfiguration {
-      pkgs = import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-      };
+      inherit pkgs;
       modules = [./home-manager/home.nix];
-      extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
+      extraSpecialArgs = extraSpecialArgs;
     };
 
     # Formatter for nix fmt
@@ -75,13 +105,27 @@
 
     # Checks for nix flake check
     checks.${system} = {
-      # Verify NixOS configuration evaluates correctly
-      nixos-config =
+      # Verify lenovonix configuration evaluates correctly
+      lenovonix-config =
         (nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = {inherit inputs pkgsUnstable kimi-cli;};
+          inherit system specialArgs;
           modules = [
+            {nixpkgs.overlays = overlays;}
             ./hosts/lenovonix/configuration.nix
+          ];
+        })
+        .config
+        .system
+        .build
+        .toplevel;
+
+      # Verify pcnix configuration evaluates correctly
+      pcnix-config =
+        (nixpkgs.lib.nixosSystem {
+          inherit system specialArgs;
+          modules = [
+            {nixpkgs.overlays = overlays;}
+            ./hosts/pcnix/configuration.nix
           ];
         })
         .config
@@ -92,12 +136,9 @@
       # Verify home-manager configuration evaluates correctly
       home-config =
         (home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
+          inherit pkgs;
           modules = [./home-manager/home.nix];
-          extraSpecialArgs = {inherit inputs pkgsUnstable pkgsMaster;};
+          extraSpecialArgs = extraSpecialArgs;
         })
         .activationPackage;
 
