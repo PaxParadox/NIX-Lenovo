@@ -280,6 +280,7 @@ in {
         env = [
           "XCURSOR_SIZE,24"
           "HYPRCURSOR_SIZE,24"
+          "GTK_THEME,adw-gtk3-dark"
         ];
 
         # Autostart
@@ -476,10 +477,8 @@ in {
       gtk4.extraConfig = {
         gtk-application-prefer-dark-theme = true;
       };
-      # Link theme for GTK4 apps (Nautilus, etc.)
-      gtk4.extraCss = ''
-        @import url("${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk.css");
-      '';
+      # Theme for GTK4 apps (Nautilus, etc.) - using adw-gtk3
+      # The theme files need to be in ~/.config/gtk-4.0/
     };
 
     # Ensure dark theme is used for GTK apps
@@ -500,6 +499,18 @@ in {
     home.sessionVariables = {
       GTK_THEME = "adw-gtk3-dark";
     };
+
+    # Link adw-gtk3 theme to ~/.config/gtk-4.0 for libadwaita apps
+    home.file.".config/gtk-4.0/gtk.css".source =
+      "${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk.css";
+    home.file.".config/gtk-4.0/gtk-dark.css".source =
+      "${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk-dark.css";
+    home.file.".config/assets".source =
+      "${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/assets";
+    
+    # Also link to ~/.themes for compatibility
+    home.file.".themes/adw-gtk3-dark".source =
+      "${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark";
 
     # Additional packages
     home.packages = with pkgs; [
