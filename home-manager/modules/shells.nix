@@ -24,9 +24,11 @@ in {
   config = lib.mkIf cfg.enable {
     # Shared shell aliases for all shells
     home.shellAliases = {
-      ll = "eza -la";
-      gs = "git status";
       gcm = "git commit -m";
+      gs = "git status";
+      hmp = "home-manager switch --flake /etc/nixos#paradox";
+      ll = "eza -la";
+      nol = "sudo nixos-rebuild switch --flake /etc/nixos#lenovonix";
     };
 
     # Bash configuration
