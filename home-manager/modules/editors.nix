@@ -1,13 +1,8 @@
 # Editors Module
-#
-# Editor configurations (Neovim from unstable, VS Code:).
-# Neovim plugins are managed by LazyVim (user's Lua config).
-# Can be toggled on/off and customized with options.
+# Zed (unstable) + VSCodium (master) with development extensions
 {
   config,
   pkgs,
-  pkgsUnstable,
-  pkgsMaster,
   lib,
   ...
 }:
@@ -15,69 +10,149 @@ with lib; let
   cfg = config.myModules.editors;
 in {
   options.myModules.editors = {
-    enable = mkEnableOption "editor configurations (neovim, vscode)";
-
-    defaultEditor = mkOption {
-      type = types.enum ["nvim" "vscode" "none"];
-      default = "nvim";
-      description = "Which editor to set as the system default ($EDITOR)";
-    };
-
-    vscode = {
-      fontSize = mkOption {
-        type = types.int;
-        default = 14;
-        description = "VS Code: editor font size";
-      };
-    };
+    enable = mkEnableOption "editor configurations (zed, vscodium)";
   };
 
   config = mkIf cfg.enable {
-    # Neovim from unstable - plugins managed by LazyVim (user's Lua config)
-    # Zed editor from unstable
-    home.packages = with pkgsUnstable; [
-      neovim
-      zed-editor
+    # Zed editor (from unstable via overlay)
+    home.packages = [pkgs.zed-editor];
+
+    # Zed settings
+    home.file.".config/zed/settings.json".text = builtins.toJSON {
+      theme = "Tokyo Night Dark";
+      ui_font_size = 15;
+      buffer_font_size = 14;
+      buffer_font_family = "JetBrainsMono Nerd Font";
+      ui_font_family = "JetBrainsMono Nerd Font";
+      terminal = {
+        font_family = "JetBrainsMono Nerd Font";
+        font_size = 12;
+      };
+      tabs = {
+        file_icons = true;
+        git_status = true;
+      };
+      indent_guides = {
+        enabled = true;
+      };
+      preferred_line_length = 100;
+      soft_wrap = "preferred_line_length";
+      ensure_final_newline_on_save = true;
+      remove_trailing_whitespace_on_save = true;
+      format_on_save = "on";
+      auto_update = false;
+      features = {
+        copilot = false;
+      };
+      telemetry = {
+        metrics = false;
+        diagnostics = false;
+      };
+      languages = {
+        Nix = {
+          language_servers = ["nixd" "!nil"];
+        };
+        Python = {
+          language_servers = ["pyright" "ruff"];
+        };
+        Rust = {
+          language_servers = ["rust-analyzer"];
+        };
+      };
+      lsp = {
+        rust-analyzer = {
+          binary = {
+            path = "${pkgs.rust-analyzer}/bin/rust-analyzer";
+          };
+        };
+        pyright = {
+          binary = {
+            path = "${pkgs.pyright}/bin/pyright-langserver";
+          };
+        };
+        ruff = {
+          binary = {
+            path = "${pkgs.ruff}/bin/ruff-lsp";
+          };
+        };
+        nixd = {
+          binary = {
+            path = "${pkgs.nixd}/bin/nixd";
+          };
+        };
+      };
+    };
+
+    # Zed keymap
+    home.file.".config/zed/keymap.json".text = builtins.toJSON [
+      {
+        context = "Workspace";
+        bindings = {
+          "ctrl-shift-p" = "command_palette::Toggle";
+          "ctrl-p" = "file_finder::Toggle";
+          "ctrl-shift-f" = "project_search::ToggleFocus";
+          "ctrl-shift-e" = "project_panel::ToggleFocus";
+          "ctrl-shift-x" = "workspace::CloseAllItemsAndPanes";
+          "ctrl-w" = "pane::CloseActiveItem";
+        };
+      }
+      {
+        context = "Editor";
+        bindings = {
+          "ctrl-s" = "workspace::Save";
+          "ctrl-f" = "buffer_search::Deploy";
+          "ctrl-h" = "buffer_search::DeployReplace";
+          "ctrl-/" = "editor::ToggleComments";
+          "ctrl-d" = "editor::SelectNext";
+          "ctrl-shift-d" = "editor::DuplicateLine";
+          "alt-up" = "editor::MoveLineUp";
+          "alt-down" = "editor::MoveLineDown";
+        };
+      }
     ];
 
-    # Create vi/vim aliases for neovim
-    programs.bash.shellAliases = {
-      vi = "nvim";
-      vim = "nvim";
-    };
-
-    programs.fish.shellAliases = {
-      vi = "nvim";
-      vim = "nvim";
-    };
-
-    # VS Code: configuration
+    # VSCodium (from master via overlay)
     programs.vscode = {
       enable = true;
-      package = pkgsMaster.vscodium;
+      package = pkgs.vscodium;
 
       profiles.default = {
-        extensions = with pkgsMaster.vscode-extensions; [
-          # Nix support
+        extensions = with pkgs.vscode-extensions; [
+          # Nix
           jnoortheen.nix-ide
 
-          # Python development
+          # Python
           charliermarsh.ruff
           detachhead.basedpyright
 
-          # AI assistant
-          continue.continue
+          # Rust
+          rust-lang.rust-analyzer
 
-          # Vim keybindings
-          vscodevim.vim
+          # Nix (additional)
+          bbenoist.nix
+
+          # Markdown
+          yzhang.markdown-all-in-one
+
+          # Git
+          eamodio.gitlens
+
+          # Themes
+          enkia.tokyo-night
         ];
 
         userSettings = {
-          # Nix settings
-          "nix.enableLanguageServer" = true;
-          "nix.serverPath" = "${pkgs.nil}/bin/nil";
+          # Theme
+          "workbench.colorTheme" = "Tokyo Night";
+          "editor.fontSize" = 14;
+          "editor.fontFamily" = "'JetBrainsMono Nerd Font', 'monospace', monospace";
+          "terminal.integrated.fontFamily" = "'JetBrainsMono Nerd Font'";
 
-          # Ruff settings
+          # Nix
+          "nix.enableLanguageServer" = true;
+          "nix.serverPath" = "${pkgs.nixd}/bin/nixd";
+
+          # Python
           "ruff.organizeImports" = true;
           "ruff.fixAll" = true;
           "ruff.lint.run" = "onSave";
@@ -89,92 +164,32 @@ in {
               "source.organizeImports" = "explicit";
             };
           };
-
-          # BasedPyright settings
           "python.analysis.typeCheckingMode" = "basic";
 
-          # Continue settings
-          "continue.enableTabAutocomplete" = true;
+          # Rust
+          "rust-analyzer.checkOnSave.command" = "clippy";
+          "rust-analyzer.cargo.features" = "all";
 
-          # Editor settings from options
+          # General
           "editor.tabSize" = 2;
-          "editor.fontSize" = cfg.vscode.fontSize;
-          "files.associations" = {
-            "*.nix" = "nix";
-          };
+          "editor.insertSpaces" = true;
+          "editor.detectIndentation" = false;
+          "files.trimTrailingWhitespace" = true;
+          "files.insertFinalNewline" = true;
+          "telemetry.telemetryLevel" = "off";
         };
       };
     };
 
-    # Set EDITOR environment variable
-    home.sessionVariables = mkIf (cfg.defaultEditor != "none") {
-      EDITOR =
-        if cfg.defaultEditor == "nvim"
-        then "nvim"
-        else "code";
+    # Editor aliases
+    programs.bash.shellAliases = {
+      zed = "zeditor";
+      code = "codium";
     };
 
-    home.file.".config/zed/settings.json".text = ''
-      {
-        "ui_font_size": 15,
-        "buffer_font_size": 14,
-        "buffer_font_family": "JetBrainsMono Nerd Font",
-        "ui_font_family": "JetBrainsMono Nerd Font",
-        "terminal": {
-          "font_family": "JetBrainsMono Nerd Font",
-          "font_size": 12
-        },
-        "tabs": {
-          "file_icons": true,
-          "git_status": true
-        },
-        "indent_guides": {
-          "enabled": true
-        },
-        "preferred_line_length": 100,
-        "soft_wrap": "preferred_line_length",
-        "ensure_final_newline_on_save": true,
-        "remove_trailing_whitespace_on_save": true,
-        "format_on_save": "on",
-        "auto_update": false,
-        "features": {
-          "copilot": false
-        },
-        "telemetry": {
-          "metrics": false,
-          "diagnostics": false
-        }
-      }
-    '';
-
-    # Zed keymap - simple bindings
-    home.file.".config/zed/keymap.json".text = ''
-      [
-        {
-          "context": "Workspace",
-          "bindings": {
-            "ctrl-shift-p": "command_palette::Toggle",
-            "ctrl-p": "file_finder::Toggle",
-            "ctrl-shift-f": "project_search::ToggleFocus",
-            "ctrl-shift-e": "project_panel::ToggleFocus",
-            "ctrl-shift-x": "workspace::CloseAllItemsAndPanes",
-            "ctrl-w": "pane::CloseActiveItem"
-          }
-        },
-        {
-          "context": "Editor",
-          "bindings": {
-            "ctrl-s": "workspace::Save",
-            "ctrl-f": "buffer_search::Deploy",
-            "ctrl-h": "buffer_search::DeployReplace",
-            "ctrl-/": "editor::ToggleComments",
-            "ctrl-d": "editor::SelectNext",
-            "ctrl-shift-d": "editor::DuplicateLine",
-            "alt-up": "editor::MoveLineUp",
-            "alt-down": "editor::MoveLineDown"
-          }
-        }
-      ]
-    '';
+    programs.fish.shellAliases = {
+      zed = "zeditor";
+      code = "codium";
+    };
   };
 }

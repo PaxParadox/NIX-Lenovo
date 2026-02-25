@@ -1,12 +1,8 @@
 # Terminal Module
-#
-# Terminal multiplexer (tmux) and terminal emulator (ghostty) configurations.
-# Can be toggled on/off and customized with options.
+# Terminal multiplexer (tmux) and emulators (kitty, alacritty)
 {
   config,
   pkgs,
-  pkgsUnstable,
-  pkgsMaster,
   lib,
   ...
 }:
@@ -14,13 +10,19 @@ with lib; let
   cfg = config.myModules.terminal;
 in {
   options.myModules.terminal = {
-    enable = mkEnableOption "terminal configurations (tmux, ghostty, alacritty)";
+    enable = mkEnableOption "terminal configurations (tmux, kitty, alacritty)";
 
-    ghostty = {
+    kitty = {
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Enable Kitty terminal";
+      };
+
       fontSize = mkOption {
         type = types.int;
         default = 11;
-        description = "Ghostty terminal font size";
+        description = "Kitty terminal font size";
       };
     };
 
@@ -36,12 +38,6 @@ in {
         default = 11;
         description = "Alacritty terminal font size";
       };
-
-      theme = mkOption {
-        type = types.str;
-        default = "tokyo-night-dark";
-        description = "Alacritty color theme";
-      };
     };
   };
 
@@ -51,35 +47,81 @@ in {
       enable = true;
       keyMode = "vi";
       terminal = "screen-256color";
-
       extraConfig = ''
         set-option -g mouse on
         set-option -g status-style bg=black
       '';
     };
 
-    # Ghostty terminal configuration
-    programs.ghostty = {
+    # Kitty terminal (from unstable via overlay if needed)
+    programs.kitty = mkIf cfg.kitty.enable {
       enable = true;
-      package = pkgsMaster.ghostty;
-
       settings = {
-        font-size = cfg.ghostty.fontSize;
-        window-padding-x = 10;
-        window-padding-y = 10;
-      };
+        font_size = cfg.kitty.fontSize;
+        font_family = "JetBrainsMono Nerd Font";
+        bold_font = "JetBrainsMono Nerd Font Bold";
+        italic_font = "JetBrainsMono Nerd Font Italic";
+        bold_italic_font = "JetBrainsMono Nerd Font Bold Italic";
 
-      # Shell integration always enabled for better terminal experience
-      enableFishIntegration = true;
-      enableBashIntegration = true;
+        # Tokyo Night theme
+        background = "#1a1b26";
+        foreground = "#c0caf5";
+        cursor = "#c0caf5";
+        cursor_text_color = "#1a1b26";
+        selection_background = "#283457";
+        selection_foreground = "#c0caf5";
+        url_color = "#73daca";
+
+        # Black
+        color0 = "#15161e";
+        color8 = "#414868";
+
+        # Red
+        color1 = "#f7768e";
+        color9 = "#f7768e";
+
+        # Green
+        color2 = "#9ece6a";
+        color10 = "#9ece6a";
+
+        # Yellow
+        color3 = "#e0af68";
+        color11 = "#e0af68";
+
+        # Blue
+        color4 = "#7aa2f7";
+        color12 = "#7aa2f7";
+
+        # Magenta
+        color5 = "#bb9af7";
+        color13 = "#bb9af7";
+
+        # Cyan
+        color6 = "#7dcfff";
+        color14 = "#7dcfff";
+
+        # White
+        color7 = "#a9b1d6";
+        color15 = "#c0caf5";
+
+        # Window settings
+        window_padding_width = 10;
+        window_padding_height = 10;
+        confirm_os_window_close = 0;
+        enable_audio_bell = false;
+
+        # Shell integration
+        shell_integration = "enabled";
+      };
+      shellIntegration = {
+        enableBashIntegration = true;
+        enableFishIntegration = true;
+      };
     };
 
-    # Alacritty terminal configuration
-    home.packages = lib.mkIf cfg.alacritty.enable [pkgsUnstable.alacritty];
-
-    programs.alacritty = lib.mkIf cfg.alacritty.enable {
+    # Alacritty terminal
+    programs.alacritty = mkIf cfg.alacritty.enable {
       enable = true;
-      package = pkgsUnstable.alacritty;
 
       settings = {
         window = {
@@ -116,7 +158,6 @@ in {
             background = "#1a1b26";
             foreground = "#c0caf5";
           };
-
           normal = {
             black = "#15161e";
             red = "#f7768e";
@@ -127,7 +168,6 @@ in {
             cyan = "#7dcfff";
             white = "#a9b1d6";
           };
-
           bright = {
             black = "#414868";
             red = "#f7768e";
@@ -140,6 +180,17 @@ in {
           };
         };
       };
+    };
+
+    # Terminal launcher aliases
+    programs.bash.shellAliases = {
+      t = "tmux";
+      ta = "tmux attach";
+    };
+
+    programs.fish.shellAliases = {
+      t = "tmux";
+      ta = "tmux attach";
     };
   };
 }

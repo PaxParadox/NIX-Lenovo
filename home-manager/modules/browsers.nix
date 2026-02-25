@@ -1,79 +1,56 @@
 # Browsers Module
-#
-# Web browser configurations with selectable default.
-# Supports: zen-browser, firefox, chromium, brave, vivaldi
+# Zen browser + Brave
 {
   config,
   pkgs,
-  inputs,
   lib,
   ...
 }:
 with lib; let
   cfg = config.myModules.browsers;
-  browserOptions = ["zen" "firefox" "chromium" "brave" "vivaldi" "none"];
 in {
   options.myModules.browsers = {
     enable = mkEnableOption "web browsers";
 
     defaultBrowser = mkOption {
-      type = types.enum browserOptions;
+      type = types.enum ["zen" "brave"];
       default = "zen";
       description = "Which browser to set as the system default";
     };
 
     zen = {
-      enable = mkEnableOption "Zen browser" // {default = true;};
-    };
-
-    firefox = {
-      enable = mkEnableOption "Firefox" // {default = true;};
-    };
-
-    chromium = {
-      enable = mkEnableOption "Chromium" // {default = false;};
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Enable Zen browser";
+      };
     };
 
     brave = {
-      enable = mkEnableOption "Brave" // {default = false;};
-    };
-
-    vivaldi = {
-      enable = mkEnableOption "Vivaldi" // {default = false;};
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Enable Brave browser";
+      };
     };
   };
 
   config = mkIf cfg.enable {
     home.packages = mkMerge [
-      (mkIf cfg.zen.enable [
-        inputs.zen-browser.packages.${pkgs.system}.default
-      ])
-      (mkIf cfg.firefox.enable [
-        pkgs.firefox
-      ])
-      (mkIf cfg.chromium.enable [
-        pkgs.chromium
-      ])
-      (mkIf cfg.brave.enable [
-        pkgs.brave
-      ])
-      (mkIf cfg.vivaldi.enable [
-        pkgs.vivaldi
-      ])
+      (mkIf cfg.zen.enable [pkgs.zen-browser])
+      (mkIf cfg.brave.enable [pkgs.brave])
     ];
 
-    # Set default browser using xdg-mime
+    # Set default browser
     xdg.mimeApps = mkIf (cfg.defaultBrowser != "none") {
       enable = true;
       defaultApplications = let
         browserDesktop =
           {
             "zen" = "zen-beta.desktop";
-            "firefox" = "firefox.desktop";
-            "chromium" = "chromium-browser.desktop";
             "brave" = "brave-browser.desktop";
-            "vivaldi" = "vivaldi-stable.desktop";
-          }.${
+          }
+          .${
             cfg.defaultBrowser
           };
       in {
@@ -90,11 +67,9 @@ in {
       BROWSER =
         {
           "zen" = "zen";
-          "firefox" = "firefox";
-          "chromium" = "chromium";
           "brave" = "brave";
-          "vivaldi" = "vivaldi";
-        }.${
+        }
+        .${
           cfg.defaultBrowser
         };
     };

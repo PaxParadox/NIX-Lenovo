@@ -1,13 +1,8 @@
 # Core Module
-#
-# Essential packages and base home configuration.
-# This module is always enabled and provides the foundation
-# for all other modules.
+# Essential packages and base configuration
 {
   config,
   pkgs,
-  pkgsUnstable,
-  pkgsMaster,
   lib,
   ...
 }: {
@@ -35,27 +30,26 @@
     tailscale
     ktailctl
 
-    # Remote access / game streaming
+    # Remote access
     moonlight-qt
-
-    # Qt styling for mediawriter
 
     # Shells
     bash
     fish
 
-    # Editors from different channels
-    pkgsUnstable.zed-editor
-    pkgsMaster.opencode
-    pkgsMaster.code-cursor
-    pkgsMaster.warp-terminal
+    # Editors (from overlays)
+    zed-editor
+    opencode
+    kimi-cli
+
+    # Desktop apps
     github-desktop
   ];
 
   # Enable home-manager to manage itself
   programs.home-manager.enable = true;
 
-  # Qt application styling (for mediawriter and other Qt apps)
+  # Qt styling
   home.sessionVariables = {
     QT_STYLE_OVERRIDE = "kvantum";
   };
