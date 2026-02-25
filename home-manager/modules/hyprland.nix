@@ -477,8 +477,11 @@ in {
       gtk4.extraConfig = {
         gtk-application-prefer-dark-theme = true;
       };
-      # Theme for GTK4 apps (Nautilus, etc.) - using adw-gtk3
-      # The theme files need to be in ~/.config/gtk-4.0/
+      # Force dark theme for GTK4/libadwaita apps
+      gtk4.extraCss = ''
+        /* Import adw-gtk3 dark theme */
+        @import url("${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk.css");
+      '';
     };
 
     # Ensure dark theme is used for GTK apps
@@ -500,11 +503,8 @@ in {
       GTK_THEME = "adw-gtk3";
     };
 
-    # Link adw-gtk3 theme to ~/.config/gtk-4.0 for libadwaita apps
-    home.file.".config/gtk-4.0/gtk.css".text = ''
-      /* Force dark theme variant */
-      @import url("${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk.css");
-    '';
+    # Link adw-gtk3 theme for libadwaita apps
+    # gtk-4.0/gtk.css is managed by gtk.gtk4.extraConfig, use that instead
     home.file.".config/gtk-4.0/gtk-dark.css".source =
       "${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk-dark.css";
     
