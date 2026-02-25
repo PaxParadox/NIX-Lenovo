@@ -459,12 +459,12 @@ in {
       x11.enable = true;
     };
 
-    # GTK theme
+    # GTK theme - using adw-gtk3 for libadwaita (Nautilus) compatibility
     gtk = {
       enable = true;
       theme = {
-        name = "Tokyo-Night-Dark";
-        package = pkgs.tokyonight-gtk-theme;
+        name = "adw-gtk3-dark";
+        package = pkgs.adw-gtk3;
       };
       iconTheme = {
         name = "Papirus-Dark";
@@ -482,10 +482,15 @@ in {
     dconf.settings = {
       "org/gnome/desktop/interface" = {
         color-scheme = "prefer-dark";
-        gtk-theme = "Tokyo-Night-Dark";
+        gtk-theme = "adw-gtk3-dark";
         icon-theme = "Papirus-Dark";
         cursor-theme = "Bibata-Modern-Classic";
       };
+    };
+
+    # Environment variables for theming
+    home.sessionVariables = {
+      GTK_THEME = "adw-gtk3-dark";
     };
 
     # Additional packages
@@ -493,7 +498,7 @@ in {
       brightnessctl
       pavucontrol
       papirus-icon-theme
-      tokyonight-gtk-theme
+      adw-gtk3
       bibata-cursors
       wl-clipboard
       hypr-scale
