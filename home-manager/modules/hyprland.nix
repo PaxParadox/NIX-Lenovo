@@ -209,157 +209,16 @@ in {
 
         # Autostart
         exec-once = [
-          "mako"
           "waybar"
-          "swww init"
-          "swww img ~/NIX-Lenovo/wallpapers/Tokyo-Night.jpg"
+          "swaync"
+          "swww-daemon"
+          "sleep 1 && swww img ~/NIX-Lenovo/wallpapers/Tokyo-Night.jpg"
         ];
       };
 
       # Gestures - 3 finger swipe to switch workspaces
       extraConfig = ''
         gesture = 3, horizontal, workspace
-      '';
-    };
-
-    # Waybar configuration
-    programs.waybar = {
-      enable = true;
-      systemd.enable = false;
-
-      settings = {
-        mainBar = {
-          layer = "top";
-          position = "top";
-          height = 30;
-          spacing = 4;
-
-          modules-left = ["hyprland/workspaces" "hyprland/window"];
-          modules-center = ["clock"];
-          modules-right = ["network" "cpu" "memory" "pulseaudio" "battery" "tray"];
-
-          "hyprland/workspaces" = {
-            disable-scroll = true;
-            all-outputs = true;
-            format = "{name}";
-          };
-
-          "hyprland/window" = {
-            max-length = 50;
-          };
-
-          clock = {
-            format = "{:%Y-%m-%d %H:%M}";
-            tooltip-format = "{:%Y-%m-%d | %H:%M}";
-          };
-
-          cpu = {
-            format = " {usage}%";
-            tooltip = false;
-          };
-
-          memory = {
-            format = " {}%";
-          };
-
-          battery = {
-            states = {
-              warning = 30;
-              critical = 15;
-            };
-            format = "{capacity}% {icon}";
-            format-icons = ["" "" "" "" ""];
-          };
-
-          network = {
-            format-wifi = "{essid} ({signalStrength}%)";
-            format-ethernet = "{ipaddr}/{cidr}";
-            tooltip-format = "{ifname} via {gwaddr}";
-            format-linked = "{ifname} (No IP)";
-            format-disconnected = "Disconnected";
-            format-alt = "{ifname}: {ipaddr}/{cidr}";
-          };
-
-          pulseaudio = {
-            format = "{volume}% {icon}";
-            format-bluetooth = "{volume}% {icon}";
-            format-bluetooth-muted = " {icon}";
-            format-muted = "0% {icon}";
-            format-icons = {
-              headphone = "";
-              hands-free = "";
-              headset = "";
-              phone = "";
-              portable = "";
-              car = "";
-              default = ["" "" ""];
-            };
-            on-click = "pavucontrol";
-          };
-
-          tray = {
-            spacing = 10;
-          };
-        };
-      };
-
-      style = ''
-        * {
-          font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free";
-          font-size: 13px;
-          min-height: 0;
-        }
-
-        window#waybar {
-          background-color: #${colors.bg};
-          color: #${colors.fg};
-          border-bottom: 2px solid #${colors.bg_highlight};
-        }
-
-        #workspaces button {
-          padding: 0 10px;
-          color: #${colors.fg_dark};
-          background-color: transparent;
-          border: none;
-          border-radius: 0;
-        }
-
-        #workspaces button:hover {
-          background-color: #${colors.bg_highlight};
-        }
-
-        #workspaces button.active {
-          background-color: #${colors.blue};
-          color: #${colors.bg};
-        }
-
-        #workspaces button.urgent {
-          background-color: #${colors.red};
-          color: #${colors.bg};
-        }
-
-        #clock,
-        #battery,
-        #cpu,
-        #memory,
-        #network,
-        #pulseaudio,
-        #tray {
-          padding: 0 10px;
-          color: #${colors.fg};
-        }
-
-        #battery.critical {
-          color: #${colors.red};
-        }
-
-        #battery.warning {
-          color: #${colors.yellow};
-        }
-
-        #network.disconnected {
-          color: #${colors.red};
-        }
       '';
     };
 
