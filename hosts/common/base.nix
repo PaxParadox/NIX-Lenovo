@@ -100,13 +100,12 @@
 
   # Restart Tailscale after resume from sleep
   systemd.services.tailscale-resume = {
-    description = "Restart Tailscale after resume";
-    wantedBy = ["suspend.target" "hibernate.target"];
-    after = ["suspend.target" "hibernate.target"];
+    description = "Restart Tailscale after resume from sleep";
+    after = ["suspend.target" "hibernate.target" "hybrid-sleep.target"];
+    wantedBy = ["post-resume.target"];
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = "${pkgs.tailscale}/bin/tailscale down && ${pkgs.tailscale}/bin/tailscale up";
-      User = "root";
+      ExecStart = "${pkgs.systemd}/bin/systemctl restart tailscaled";
     };
   };
 
