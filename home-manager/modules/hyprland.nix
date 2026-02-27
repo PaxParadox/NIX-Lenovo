@@ -193,7 +193,7 @@ in {
         # Keybindings
         "$mod" = cfg.modKey;
         "$terminal" = "kitty";
-        "$fileManager" = "nautilus";
+        "$fileManager" = "thunar";
         "$menu" = "rofi -show drun";
         "$browser" = "zen-beta";
 

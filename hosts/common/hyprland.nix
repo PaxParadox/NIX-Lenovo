@@ -89,7 +89,7 @@
     # Wallpapers
     swww
 
-    # File manager (Nautilus for GNOME integration)
-    nautilus
+    # File manager (Thunar)
+    xfce.thunar
   ];
 }
