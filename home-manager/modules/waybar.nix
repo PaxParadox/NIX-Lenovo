@@ -6,8 +6,7 @@
   lib,
   pkgsUnstable,
   ...
-}:
-let
+}: let
   cfg = config.myModules.waybar;
 
   # Tokyo Night color palette
@@ -32,13 +31,12 @@ let
     purple = "9d7cd8";
     teal = "1abc9c";
   };
-in
-{
+in {
   options.myModules.waybar = {
     enable = lib.mkEnableOption "Waybar status bar";
 
     position = lib.mkOption {
-      type = lib.types.enum [ "top" "bottom" ];
+      type = lib.types.enum ["top" "bottom"];
       default = "top";
       description = "Position of the waybar";
     };
@@ -244,7 +242,7 @@ in
               phone = "󰏲";
               portable = "󰏲";
               car = "󰄋";
-              default = [ "󰕿" "󰖀" "󰕾" ];
+              default = ["󰕿" "󰖀" "󰕾"];
             };
             scroll-step = 2;
             on-click = "pavucontrol";
@@ -259,7 +257,7 @@ in
             format = "{icon}";
             format-muted = "󰍭";
             format-icons = {
-              default = [ "󰍬" "󰍬" ];
+              default = ["󰍬" "󰍬"];
             };
             on-click = "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
             on-click-right = "pavucontrol";
@@ -305,7 +303,7 @@ in
             format = "{icon} {capacity}%";
             format-charging = "󰂄 {capacity}%";
             format-plugged = "󰂄 {capacity}%";
-            format-icons = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
+            format-icons = ["󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
             tooltip = true;
             tooltip-format = "{timeTo}\n{power}W draw";
             interval = 5;
@@ -380,7 +378,7 @@ in
           border-radius: 16px;
           margin: 8px 12px 0 12px;
           padding: 4px 12px;
-          box-shadow: 
+          box-shadow:
             0 4px 6px -1px rgba(0, 0, 0, 0.3),
             0 2px 4px -1px rgba(0, 0, 0, 0.2),
             inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -610,13 +608,7 @@ in
           margin: 0 4px;
         }
 
-        #tray > .passive {
-          -gtk-icon-effect: dim;
-        }
 
-        #tray > .needs-attention {
-          -gtk-icon-effect: highlight;
-        }
 
         #idle_inhibitor {
           color: #${colors.fg_gutter};
@@ -670,7 +662,7 @@ in
           border-radius: 12px;
           border: 1px solid rgba(122, 162, 247, 0.2);
           padding: 12px;
-          box-shadow: 
+          box-shadow:
             0 10px 15px -3px rgba(0, 0, 0, 0.4),
             0 4px 6px -2px rgba(0, 0, 0, 0.2);
         }

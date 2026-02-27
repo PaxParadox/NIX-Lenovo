@@ -5,80 +5,79 @@
   pkgs,
   lib,
   ...
-}:
-  let
-    cfg = config.myModules.hyprland;
+}: let
+  cfg = config.myModules.hyprland;
 
-    # Display scaling script for current monitor
-    hypr-scale = pkgs.writeShellScriptBin "hypr-scale" ''
-      #!/usr/bin/env bash
-      # Adjust display scale for currently focused monitor
-      
-      # Force C locale for consistent decimal formatting (dots, not commas)
-      export LC_NUMERIC=C
+  # Display scaling script for current monitor
+  hypr-scale = pkgs.writeShellScriptBin "hypr-scale" ''
+    #!/usr/bin/env bash
+    # Adjust display scale for currently focused monitor
 
-      DIRECTION="$1"
-      STEP="0.25"
-      MIN_SCALE="0.5"
-      MAX_SCALE="3.0"
+    # Force C locale for consistent decimal formatting (dots, not commas)
+    export LC_NUMERIC=C
 
-      # Get focused monitor info
-      MONITOR_INFO=$(hyprctl monitors -j | ${pkgs.jq}/bin/jq -r '.[] | select(.focused) | "\(.name)|\(.scale)"')
-      MONITOR_NAME=$(echo "$MONITOR_INFO" | cut -d'|' -f1)
-      CURRENT_SCALE=$(echo "$MONITOR_INFO" | cut -d'|' -f2)
+    DIRECTION="$1"
+    STEP="0.25"
+    MIN_SCALE="0.5"
+    MAX_SCALE="3.0"
 
-      # Debug output
-      echo "Monitor: $MONITOR_NAME, Current scale: $CURRENT_SCALE, Direction: $DIRECTION" >&2
+    # Get focused monitor info
+    MONITOR_INFO=$(hyprctl monitors -j | ${pkgs.jq}/bin/jq -r '.[] | select(.focused) | "\(.name)|\(.scale)"')
+    MONITOR_NAME=$(echo "$MONITOR_INFO" | cut -d'|' -f1)
+    CURRENT_SCALE=$(echo "$MONITOR_INFO" | cut -d'|' -f2)
 
-      # Validate current scale
-      if [ -z "$CURRENT_SCALE" ] || [ "$CURRENT_SCALE" = "null" ]; then
-        ${pkgs.libnotify}/bin/notify-send -t 2000 "Display Scale" "Error: Could not get current scale"
-        exit 1
-      fi
+    # Debug output
+    echo "Monitor: $MONITOR_NAME, Current scale: $CURRENT_SCALE, Direction: $DIRECTION" >&2
 
-      # Calculate new scale using awk for better floating point handling
-      if [ "$DIRECTION" = "inc" ]; then
-        NEW_SCALE=$(awk "BEGIN {print $CURRENT_SCALE + $STEP}")
-      else
-        NEW_SCALE=$(awk "BEGIN {print $CURRENT_SCALE - $STEP}")
-      fi
+    # Validate current scale
+    if [ -z "$CURRENT_SCALE" ] || [ "$CURRENT_SCALE" = "null" ]; then
+      ${pkgs.libnotify}/bin/notify-send -t 2000 "Display Scale" "Error: Could not get current scale"
+      exit 1
+    fi
 
-      # Clamp values using awk
-      NEW_SCALE=$(awk -v ns="$NEW_SCALE" -v min="$MIN_SCALE" -v max="$MAX_SCALE" 'BEGIN {
-        if (ns < min) print min;
-        else if (ns > max) print max;
-        else print ns;
-      }')
+    # Calculate new scale using awk for better floating point handling
+    if [ "$DIRECTION" = "inc" ]; then
+      NEW_SCALE=$(awk "BEGIN {print $CURRENT_SCALE + $STEP}")
+    else
+      NEW_SCALE=$(awk "BEGIN {print $CURRENT_SCALE - $STEP}")
+    fi
 
-      # Format to 2 decimal places (with C locale for dots)
-      NEW_SCALE=$(LC_NUMERIC=C printf "%.2f" "$NEW_SCALE")
+    # Clamp values using awk
+    NEW_SCALE=$(awk -v ns="$NEW_SCALE" -v min="$MIN_SCALE" -v max="$MAX_SCALE" 'BEGIN {
+      if (ns < min) print min;
+      else if (ns > max) print max;
+      else print ns;
+    }')
 
-      echo "New scale: $NEW_SCALE" >&2
+    # Format to 2 decimal places (with C locale for dots)
+    NEW_SCALE=$(LC_NUMERIC=C printf "%.2f" "$NEW_SCALE")
 
-      # Get current monitor details
-      MONITOR_RES=$(hyprctl monitors -j | ${pkgs.jq}/bin/jq -r --arg name "$MONITOR_NAME" '.[] | select(.name == $name) | "\(.width)x\(.height)@\(.refreshRate)"')
-      MONITOR_X=$(hyprctl monitors -j | ${pkgs.jq}/bin/jq -r --arg name "$MONITOR_NAME" '.[] | select(.name == $name) | .x')
-      MONITOR_Y=$(hyprctl monitors -j | ${pkgs.jq}/bin/jq -r --arg name "$MONITOR_NAME" '.[] | select(.name == $name) | .y')
-      
-      # Build position string
-      if [ "$MONITOR_X" = "0" ] && [ "$MONITOR_Y" = "0" ]; then
-        MONITOR_POS="auto"
-      else
-        MONITOR_POS="''${MONITOR_X}x''${MONITOR_Y}"
-      fi
-      
-      echo "Applying: monitor $MONITOR_NAME,$MONITOR_RES,$MONITOR_POS,$NEW_SCALE" >&2
-      
-      # Apply scale with explicit resolution
-      hyprctl keyword monitor "$MONITOR_NAME,$MONITOR_RES,$MONITOR_POS,$NEW_SCALE"
+    echo "New scale: $NEW_SCALE" >&2
 
-      # Verify the change was applied
-      sleep 0.1
-      ACTUAL_SCALE=$(hyprctl monitors -j | ${pkgs.jq}/bin/jq -r --arg name "$MONITOR_NAME" '.[] | select(.name == $name) | .scale')
+    # Get current monitor details
+    MONITOR_RES=$(hyprctl monitors -j | ${pkgs.jq}/bin/jq -r --arg name "$MONITOR_NAME" '.[] | select(.name == $name) | "\(.width)x\(.height)@\(.refreshRate)"')
+    MONITOR_X=$(hyprctl monitors -j | ${pkgs.jq}/bin/jq -r --arg name "$MONITOR_NAME" '.[] | select(.name == $name) | .x')
+    MONITOR_Y=$(hyprctl monitors -j | ${pkgs.jq}/bin/jq -r --arg name "$MONITOR_NAME" '.[] | select(.name == $name) | .y')
 
-      # Notify user
-      ${pkgs.libnotify}/bin/notify-send -t 1500 "Display Scale" "Scale: ''${NEW_SCALE}x (actual: ''${ACTUAL_SCALE}x)"
-    '';
+    # Build position string
+    if [ "$MONITOR_X" = "0" ] && [ "$MONITOR_Y" = "0" ]; then
+      MONITOR_POS="auto"
+    else
+      MONITOR_POS="''${MONITOR_X}x''${MONITOR_Y}"
+    fi
+
+    echo "Applying: monitor $MONITOR_NAME,$MONITOR_RES,$MONITOR_POS,$NEW_SCALE" >&2
+
+    # Apply scale with explicit resolution
+    hyprctl keyword monitor "$MONITOR_NAME,$MONITOR_RES,$MONITOR_POS,$NEW_SCALE"
+
+    # Verify the change was applied
+    sleep 0.1
+    ACTUAL_SCALE=$(hyprctl monitors -j | ${pkgs.jq}/bin/jq -r --arg name "$MONITOR_NAME" '.[] | select(.name == $name) | .scale')
+
+    # Notify user
+    ${pkgs.libnotify}/bin/notify-send -t 1500 "Display Scale" "Scale: ''${NEW_SCALE}x (actual: ''${ACTUAL_SCALE}x)"
+  '';
 
   # Tokyo Night colors
   colors = {
@@ -118,7 +117,7 @@ in {
 
       settings = {
         # Monitor configuration (will auto-detect)
-        monitor = ",preferred,auto,auto";
+        monitor = ",preferred,auto,1";
 
         # Input configuration
         input = {
@@ -280,7 +279,6 @@ in {
         env = [
           "XCURSOR_SIZE,24"
           "HYPRCURSOR_SIZE,24"
-          "GTK_THEME,adw-gtk3-dark"
         ];
 
         # Autostart
@@ -456,71 +454,13 @@ in {
       name = "Bibata-Modern-Classic";
       package = pkgs.bibata-cursors;
       size = 24;
-      gtk.enable = true;
       x11.enable = true;
     };
-
-    # GTK theme - using adw-gtk3 for libadwaita (Nautilus) compatibility
-    gtk = {
-      enable = true;
-      theme = {
-        name = "adw-gtk3";
-        package = pkgs.adw-gtk3;
-      };
-      iconTheme = {
-        name = "Papirus-Dark";
-        package = pkgs.papirus-icon-theme;
-      };
-      gtk3.extraConfig = {
-        gtk-application-prefer-dark-theme = true;
-      };
-      gtk4.extraConfig = {
-        gtk-application-prefer-dark-theme = true;
-      };
-      # Force dark theme for GTK4/libadwaita apps
-      gtk4.extraCss = ''
-        /* Import adw-gtk3 dark theme */
-        @import url("${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk.css");
-      '';
-    };
-
-    # Ensure dark theme is used for GTK apps
-    dconf.settings = {
-      "org/gnome/desktop/interface" = {
-        color-scheme = "prefer-dark";
-        gtk-theme = "adw-gtk3";
-        icon-theme = "Papirus-Dark";
-        cursor-theme = "Bibata-Modern-Classic";
-      };
-      # Nautilus specific settings
-      "org/gnome/nautilus/preferences" = {
-        use-experimental-views = false;
-      };
-    };
-
-    # Environment variables for theming
-    home.sessionVariables = {
-      GTK_THEME = "adw-gtk3";
-    };
-
-    # Link adw-gtk3 theme for libadwaita apps
-    # gtk-4.0/gtk.css is managed by gtk.gtk4.extraConfig, use that instead
-    home.file.".config/gtk-4.0/gtk-dark.css".source =
-      "${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark/gtk-4.0/gtk-dark.css";
-    
-    # Also link to ~/.themes for compatibility
-    home.file.".themes/adw-gtk3".source =
-      "${pkgs.adw-gtk3}/share/themes/adw-gtk3";
-    home.file.".themes/adw-gtk3-dark".source =
-      "${pkgs.adw-gtk3}/share/themes/adw-gtk3-dark";
 
     # Additional packages
     home.packages = with pkgs; [
       brightnessctl
       pavucontrol
-      papirus-icon-theme
-      adw-gtk3
-      bibata-cursors
       wl-clipboard
       hypr-scale
       jq

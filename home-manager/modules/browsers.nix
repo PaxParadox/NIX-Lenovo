@@ -5,8 +5,7 @@
   pkgs,
   lib,
   ...
-}:
-let
+}: let
   cfg = config.myModules.browsers;
 in {
   options.myModules.browsers = {

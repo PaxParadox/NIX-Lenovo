@@ -7,8 +7,7 @@
   pkgs,
   lib,
   ...
-}:
-let
+}: let
   cfg = config.myModules.shells;
 in {
   options.myModules.shells = {

@@ -5,8 +5,7 @@
   pkgs,
   lib,
   ...
-}:
-let
+}: let
   cfg = config.myModules.terminal;
 in {
   options.myModules.terminal = {

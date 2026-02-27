@@ -7,8 +7,7 @@
   pkgs,
   lib,
   ...
-}:
-let
+}: let
   cfg = config.myModules.git;
 in {
   options.myModules.git = {

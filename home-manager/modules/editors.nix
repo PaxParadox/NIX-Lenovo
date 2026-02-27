@@ -6,8 +6,7 @@
   pkgsMaster,
   lib,
   ...
-}:
-let
+}: let
   cfg = config.myModules.editors;
 in {
   options.myModules.editors = {
