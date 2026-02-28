@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Pre-commit hook to auto-format Nix files with alejandra
+
+set -e
+
+# Get list of staged Nix files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.nix$' || true)
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+echo "Formatting Nix files with alejandra (via nix run)..."
+
+for file in $STAGED_FILES; do
+    if [ -f "$file" ]; then
+        nix run nixpkgs#alejandra -- "$file"
+        git add "$file"
+    fi
+done
+
+echo "Formatting complete!"
