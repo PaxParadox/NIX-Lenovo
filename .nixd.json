@@ -1,0 +1,47 @@
+{
+  "eval": {
+    "target": {
+      "args": ["-f", "flake.nix"],
+      "installable": ".#nixosConfigurations.lenovonix.config.system.build.toplevel"
+    }
+  },
+  "formatting": {
+    "command": "alejandra"
+  },
+  "options": {
+    "target": {
+      "args": ["-f", "flake.nix"],
+      "installable": ".#nixosConfigurations.lenovonix.options"
+    }
+  },
+  "nixosConfigurations": {
+    "lenovonix": {
+      "eval": {
+        "target": {
+          "args": ["-f", "flake.nix"],
+          "installable": ".#nixosConfigurations.lenovonix.config.system.build.toplevel"
+        }
+      },
+      "options": {
+        "target": {
+          "args": ["-f", "flake.nix"],
+          "installable": ".#nixosConfigurations.lenovonix.options"
+        }
+      }
+    },
+    "pcnix": {
+      "eval": {
+        "target": {
+          "args": ["-f", "flake.nix"],
+          "installable": ".#nixosConfigurations.pcnix.config.system.build.toplevel"
+        }
+      },
+      "options": {
+        "target": {
+          "args": ["-f", "flake.nix"],
+          "installable": ".#nixosConfigurations.pcnix.options"
+        }
+      }
+    }
+  }
+}
