@@ -32,9 +32,9 @@
 
   # Power management for lid/suspend
   services.logind.settings.Login = {
-    HandleLidSwitch = "suspend";
-    HandleLidSwitchExternalPower = "suspend";
-    HandleLidSwitchDocked = "suspend";
+    HandleLidSwitch = "lock";
+    HandleLidSwitchExternalPower = "lock";
+    HandleLidSwitchDocked = "lock";
   };
 
   # Fingerprint reader (Goodix 550a)
@@ -52,6 +52,12 @@
   security.pam.services.login.fprintAuth = true;
   security.pam.services.sudo.fprintAuth = true;
   security.pam.services.hyprlock.fprintAuth = lib.mkForce true;
+
+  # Touchpad configuration
+  services.libinput.touchpad = {
+    naturalScrolling = true;
+    tapping = true;
+  };
 
   # System packages (laptop-specific)
   environment.systemPackages = with pkgs; [
