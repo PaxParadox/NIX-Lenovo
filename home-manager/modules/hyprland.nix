@@ -288,6 +288,7 @@ in {
           "swww-daemon"
           "sleep 1 && swww img ~/NIX-Lenovo/wallpapers/Tokyo-Night.jpg"
           "ktailctl"
+          "nm-applet --indicator"
         ];
       };
 
